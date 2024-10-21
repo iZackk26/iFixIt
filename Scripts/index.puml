@@ -1,0 +1,45 @@
+@startuml
+
+entity Registration {
+  + id : int <<PK>>
+  --
+  orderNumber : Varchar(255)
+  ownerID : int <<FK>>
+  employeeID : int <<FK>>
+  vehicleID : int <<FK>>
+  date : Date
+}
+
+entity Owner {
+  + id : int <<PK>>
+  --
+  name : Varchar(255)
+  mail : Varchar(255)
+  phone : int
+}
+
+entity Vehicle {
+  + id : int <<PK>>
+  --
+  brand : Varchar(255)
+  year : int
+  licensePlate : Varchar(255)
+  ownerID : int <<FK>>
+}
+
+entity Employee {
+  + id : int <<PK>>
+  --
+  name : Varchar(255)
+  mail : Varchar(255)
+  phone : int
+  position : Varchar(255)
+}
+
+Registration -- Owner : "ownerID"
+Registration -- Employee : "employeeID"
+Registration -- Vehicle : "vehicleID"
+Owner -- Vehicle : "owns >"
+
+@enduml
+
