@@ -1,9 +1,12 @@
+import { Button } from "@material-tailwind/react";
+
 function App() {
   return (
     <>
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>   
+    <div className="flex w-full h-full justify-center items-center">
+      <Button>Button</Button>
+    </div>
+
     </>
   )
 }
