@@ -8,6 +8,7 @@ import RegistrationSummary from "../components/RegistrationSummary";
 import { getUser } from "../utils/auth";
 import { getOwner } from "../utils/owner";
 import { getVehicle } from "../utils/vehicle";
+import axios from "axios";
 
 export function Registration() {
   const [currentStep, setCurrentStep] = useState(0);
