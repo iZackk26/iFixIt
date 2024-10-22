@@ -7,9 +7,11 @@ import {
   FaIdCard,
   FaCalendarDay,
   FaCreditCard,
+  FaSave,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Button } from "@material-tailwind/react";
 
 const Report = () => {
   const { registrationID } = useParams();
@@ -17,24 +19,28 @@ const Report = () => {
   const [price, setPrice] = useState<string>(""); // Estado para el precio
 
   // Simular un estado de la base de datos para el proceso de registro
-  const [registrationStatus, setRegistrationStatus] = useState<'pendiente' | 'en proceso' | 'completado'>('pendiente');
+  const [registrationStatus, setRegistrationStatus] = useState<
+    "pendiente" | "en proceso" | "completado"
+  >("pendiente");
 
   useEffect(() => {
-    console.log('Registration ID:', registrationID);
+    console.log("Registration ID:", registrationID);
   }, [registrationID]);
 
   const fetchRegistrationData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
-      const response = await axios.get(`${apiUrl}registration/${registrationID}/details`);
+      const response = await axios.get(
+        `${apiUrl}registration/${registrationID}/details`
+      );
 
       if (response) {
-        console.log('Registration data:', response.data);
+        console.log("Registration data:", response.data);
         setRegistrationData(response.data);
         setRegistrationStatus(response.data.status); // Simular estado de la base de datos
       }
     } catch (err) {
-      console.error('Error fetching registration data:', err);
+      console.error("Error fetching registration data:", err);
     }
   };
 
@@ -158,9 +164,9 @@ const Report = () => {
 
   // Determinar el texto del botón según el estado del registro
   const getCompletionButtonText = () => {
-    if (registrationStatus === 'pendiente') return 'Marcar en proceso';
-    if (registrationStatus === 'en proceso') return 'Marcar como Completado';
-    return 'Completado'; // Si el estado es 'completado'
+    if (registrationStatus === "pendiente") return "Marcar en proceso";
+    if (registrationStatus === "en proceso") return "Marcar como Completado";
+    return "Completado"; // Si el estado es 'completado'
   };
 
   return (
@@ -225,66 +231,80 @@ const Report = () => {
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-semibold">Comentarios</h3>
           <div className="mr-2">
-            <p className="text-md font-semibold">{registrationData.employeename}</p>
-            <p className="text-sm text-gray-500">{registrationData.employeeposition}</p>
+            <p className="text-md font-semibold">
+              {registrationData.employeename}
+            </p>
+            <p className="text-sm text-gray-500">
+              {registrationData.employeeposition}
+            </p>
           </div>
         </div>
         <textarea
           value={registrationData.comments.comment}
-          onChange={(e) => setRegistrationData({
-            ...registrationData,
-            comments: { ...registrationData.comments, comment: e.target.value }
-          })}
+          onChange={(e) =>
+            setRegistrationData({
+              ...registrationData,
+              comments: {
+                ...registrationData.comments,
+                comment: e.target.value,
+              },
+            })
+          }
           className="w-full p-2 border border-gray-300 rounded-lg flex-grow"
         />
         <div className="flex justify-end mt-4">
-          <button
+          <Button
             onClick={handleUpdateComment}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+            className="flex items-center gap-3"
+            variant="outlined"
           >
-            Actualizar
-          </button>
+            <FaSave className="h-5 w-5 text-gray-900" />
+            Update comment
+          </Button>
         </div>
       </div>
 
       {/* Entrada para el precio y botones de acción */}
       <div className="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
-        <div className="flex space-x-4 items-center">
-          <label className="text-md font-semibold">Precio en dólares:</label>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="border border-gray-300 p-2 rounded-lg"
-            placeholder="Ingrese el precio"
-          />
-          <button
-            onClick={handleConfirmPrice}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300"
-          >
-            Confirmar
-          </button>
-        </div>
-        <div className="flex space-x-4">
-          <button
-            onClick={handleMarkAsPaid}
-            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
-          >
-            Marcar como Pagado
-          </button>
-          <button
-            onClick={handleMarkAsCompleted}
-            className={`bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300 ${
-              registrationStatus === 'completado' ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            disabled={registrationStatus === 'completado'}
-          >
-            {getCompletionButtonText()}
-          </button>
+        <div className="flex flex-row w-full  items-end">
+          <div className="flex flex-col ">
+            <label className="text-md font-semibold">Precio en dólares:</label>
+            <div>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="border border-gray-300 p-2 rounded-lg"
+                placeholder="$ 0"
+              />
+              <Button onClick={handleConfirmPrice} className="p-2 ml-2">
+                <FaSave className="h-5 w-5 text-gray-300" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-1  space-x-4 justify-end">
+            <Button
+              onClick={handleMarkAsPaid}
+              
+            >
+              Marcar como Pagado
+            </Button>
+            <Button
+              onClick={handleMarkAsCompleted}
+              className={` transition duration-300 ${
+                registrationStatus === "completado"
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={registrationStatus === "completado"}
+            >
+              {getCompletionButtonText()}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Report;
