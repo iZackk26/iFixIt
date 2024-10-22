@@ -1,15 +1,27 @@
 import React, {useState} from 'react'
+import axios from 'axios';
+import { setAuthData } from '../utils/auth';
 
 export default function Login() {
     const [commerceCredentials, setCommerceCredentials] = useState("");
     const [workerId, setWorkerId] = useState("");
 
     // Método para manejar el inicio de sesión
-    const submitLogin = (e) => {
+    const submitLogin = async (e) => {
         e.preventDefault();
         // Lógica para el manejo del login
-        console.log("Credenciales:", commerceCredentials);
-        console.log("ID del trabajador:", workerId);
+        const apiUrl = import.meta.env.VITE_API_KEY;
+        const newApi = apiUrl + 'employee/login/'
+
+
+        const response = await axios.post(newApi, {
+            mail: commerceCredentials,
+            password: workerId
+        });
+
+        const user = response.data;
+        setAuthData(user);
+
     };
 
     return (
@@ -20,40 +32,42 @@ export default function Login() {
                     Please enter your credentials to access the system
                 </p>
                 <form onSubmit={submitLogin}>
+                    {/* Campo para el Email */}
                     <div className="mb-4 relative">
                         <label className="block text-gray-700 text-sm mb-2" htmlFor="commerceCredentials">
-                            Commerce Credentials
+                            Email
                         </label>
                         <div className="relative">
                             <input
                                 id="commerceCredentials"
-                                type="password"
+                                type="text"  // Cambiado a 'text'
                                 value={commerceCredentials}
                                 onChange={(e) => setCommerceCredentials(e.target.value)}
-                                placeholder="Enter commerce credentials"
+                                placeholder="Enter your email"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                            />
+                            <i className="fas fa-envelope absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+    
+                    {/* Campo para la Contraseña */}
+                    <div className="mb-6 relative">
+                        <label className="block text-gray-700 text-sm mb-2" htmlFor="workerId">
+                            Password
+                        </label>
+                        <div className="relative">
+                            <input
+                                id="workerId"
+                                type="password"  // Cambiado a 'password'
+                                value={workerId}
+                                onChange={(e) => setWorkerId(e.target.value)}
+                                placeholder="Enter your password"
                                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
                             />
                             <i className="fas fa-lock absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
                     </div>
-
-                    <div className="mb-6 relative">
-                        <label className="block text-gray-700 text-sm mb-2" htmlFor="workerId">
-                            Worker ID
-                        </label>
-                        <div className="relative">
-                            <input
-                                id="workerId"
-                                type="text"
-                                value={workerId}
-                                onChange={(e) => setWorkerId(e.target.value)}
-                                placeholder="Enter your worker ID"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                            />
-                            <i className="fas fa-id-badge absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        </div>
-                    </div>
-
+    
                     <button
                         type="submit"
                         className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition duration-300"
@@ -64,4 +78,5 @@ export default function Login() {
             </div>
         </div>
     );
+    
 }
