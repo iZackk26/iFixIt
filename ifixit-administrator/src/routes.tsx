@@ -1,21 +1,31 @@
-import { Routes, Route } from "react-router-dom";
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Registration from "./pages/registration";
-import Works from "./pages/works";
-import Billing from "./pages/billing";
-import Report from "./pages/report";
-
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Home from './pages/home';
+import Login from './pages/login';
+import Registration from './pages/registration';
+import Works from './pages/works';
+import Billing from './pages/billing';
+import Report from './pages/report';
+import { Layout } from './components/Layout';
+import { useAuth } from './contexts/AuthContext';
 
 const Routing = () => {
+  const { isAuthenticated, user, loading } = useAuth();  // Añadir el estado de carga
+
+  if (loading) {
+    return <div>Loading...</div>;  // Muestra un mensaje de carga mientras se verifica el estado de autenticación
+  }
+
   return (
     <Routes>
-        <Route path="/" element={<Login/>} />
-        <Route path="/home" element={<Home/>} />
-        <Route path="/registration" element={<Registration/>} />
-        <Route path="/works" element={<Works/>} />
-        <Route path="/billing" element={<Billing/>} />
-        <Route path="/report" element={<Report/>} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
+
+      <Route element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
+        <Route path="/registration" element={<Registration />} />
+        <Route path="/workstation" element={<Works />} />
+        <Route path="/billing" element={<Billing />} />
+        <Route path="/reports/:registrationID" element={<Report />} />
+      </Route>
     </Routes>
   );
 };
