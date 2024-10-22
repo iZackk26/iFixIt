@@ -1,62 +1,71 @@
 import React, { useState } from "react";
-import { Button } from "@material-tailwind/react";
+import { Stepper, Step, Button } from "@material-tailwind/react";
+import { FaCar, FaUser, FaBook } from "react-icons/fa"; // Iconos de react-icons
 import OwnerForm from "../components/OwnerForm";
 import VehicleForm from "../components/VehicleForm";
+import RegistrationSummary from "../components/RegistrationSummary"; // Import corregido
 import axios from "axios";
 
 export function Registration() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isLastStep, setIsLastStep] = useState(false);
+  const [isFirstStep, setIsFirstStep] = useState(true);
 
-  const handleNextStep = () => {
-    if (currentStep < 2) {
-      setCurrentStep(currentStep + 1);
+  const handleNextStep = () => !isLastStep && setCurrentStep((cur) => cur + 1);
+  const handlePreviousStep = () => !isFirstStep && setCurrentStep((cur) => cur - 1);
+
+  const handleSearch = async () => {
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const searchUrl = `${apiUrl}owner/${dni}`;
+    const response = await axios.get(searchUrl);
+
+    if (response.data) {
+      setOwnerData(response.data);
+      localStorage.setItem("ownerData", JSON.stringify(response.data));
+    } else {
+      setError("No se encontró ningún propietario con ese DNI.");
     }
   };
-
-  const handlePreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
 
   return (
     <div className="flex w-full h-screen justify-center items-center">
       <div className="max-w-lg mx-auto p-6 space-y-6">
-        {/* Step Indicators */}
-        <div className="flex justify-between items-center">
-          <div className={`w-1/2 text-center ${currentStep === 1 ? "font-bold" : "text-gray-500"}`}>
-            Step 1
-          </div>
-          <div className="w-1/12 text-center">
-            <div className="h-1 bg-gray-300" />
-          </div>
-          <div className={`w-1/2 text-center ${currentStep === 2 ? "font-bold" : "text-gray-500"}`}>
-            Step 2
-          </div>
-        </div>
+        {/* Stepper de Material Tailwind */}
+        <Stepper
+          activeStep={currentStep}
+          isLastStep={(value) => setIsLastStep(value)}
+          isFirstStep={(value) => setIsFirstStep(value)}
+        >
+          <Step onClick={() => setCurrentStep(0)}>
+            <FaUser className="h-5 w-5" />
+          </Step>
+          <Step onClick={() => setCurrentStep(1)}>
+            <FaCar className="h-5 w-5" />
+          </Step>
+          <Step onClick={() => setCurrentStep(2)}>
+            <FaBook className="h-5 w-5" />
+          </Step>
+        </Stepper>
 
         {/* Step Content */}
         <div className="p-4 border rounded">
-          {currentStep === 1 ? (
-            <Step1 />
-          ) : (
-            <Step2 />
-          )}
+          {currentStep === 0 && <OwnerForm />}
+          {currentStep === 1 && <VehicleForm />}
+          {currentStep === 2 && <RegistrationSummary />}
         </div>
 
         {/* Navigation Buttons */}
         <div className="flex justify-between">
           <Button
-            disabled={currentStep === 1}
+            disabled={isFirstStep}
             onClick={handlePreviousStep}
-            className={currentStep === 1 ? "disable" : ""}
+            className={currentStep === 0 ? "disable" : ""}
           >
             Previous
           </Button>
           <Button
             onClick={handleNextStep}
-            disabled={currentStep === 2}
+            disabled={isLastStep}
           >
             Next
           </Button>
@@ -65,14 +74,5 @@ export function Registration() {
     </div>
   );
 }
-
-// Components for each step (empty for now)
-const Step1 = () => {
-  return <OwnerForm />;
-};
-
-const Step2 = () => {
-  return <VehicleForm />;
-};
 
 export default Registration;
