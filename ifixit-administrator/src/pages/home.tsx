@@ -1,40 +1,40 @@
-import { FaClipboard, FaWrench, FaReceipt, FaChartBar } from "react-icons/fa"
-import { useNavigate } from 'react-router-dom'
+import { FaClipboard, FaWrench, FaReceipt, FaChartBar } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/IFixIt.png'; // Importa el logo desde la carpeta assets
 
 export default function Home() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl md:text-6xl font-bold mb-8 text-blue-600 tracking-tight">
-        I Fix <span className="text-orange-500">It</span>
-      </h1>
+      {/* Muestra el logo en lugar del título */}
+      <img src={logo} alt="I Fix It Logo" className="h-24 mb-8" />
       
       <div className="w-full max-w-md shadow-lg bg-white rounded-lg">
         <div className="grid grid-cols-2 gap-4 p-4">
           <button 
-            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg"
+            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
             onClick={() => navigate('/registration')}
           >
             <FaClipboard className="h-8 w-8 mb-2" />
             <span>Registration</span>
           </button>
           <button 
-            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg"
+            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
             onClick={() => navigate('/workstation')}
           >
             <FaWrench className="h-8 w-8 mb-2" />
             <span>Work station</span>
           </button>
           <button 
-            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg"
+            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
             onClick={() => navigate('/billing')}
           >
             <FaReceipt className="h-8 w-8 mb-2" />
             <span>Billing</span>
           </button>
           <button 
-            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg"
+            className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
             onClick={() => navigate('/reports')}
           >
             <FaChartBar className="h-8 w-8 mb-2" />
@@ -43,5 +43,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }
