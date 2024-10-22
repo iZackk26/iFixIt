@@ -3,6 +3,7 @@ import { getVehicle } from "../utils/vehicle";
 import { getOwner } from "../utils/owner";
 
 
+
 export default function RegistrationSummary() {
   // Datos simulados para el resumen
   const ownerData = getOwner();
