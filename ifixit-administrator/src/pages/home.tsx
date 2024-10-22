@@ -6,13 +6,18 @@ import { useEffect } from "react";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     if (user) {
       console.log('Usuario autenticado:', user); // Imprimir solo si user está definido
     }
   }, [user]);
+
+  const handleLogout = () => {
+    logout(); // Llamar la función de logout para cerrar sesión
+    navigate('/login'); // Redirigir al login después de cerrar sesión
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
@@ -48,6 +53,16 @@ export default function Home() {
           >
             <FaChartBar className="h-8 w-8 mb-2" />
             <span>Reports</span>
+          </button>
+        </div>
+
+        {/* Botón de Logout */}
+        <div className="mt-6 p-4">
+          <button 
+            onClick={handleLogout} 
+            className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-300"
+          >
+            Logout
           </button>
         </div>
       </div>
