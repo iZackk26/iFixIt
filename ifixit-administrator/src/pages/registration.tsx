@@ -1,29 +1,28 @@
 import React, { useState } from "react";
 import { Stepper, Step, Button } from "@material-tailwind/react";
-import { FaCar, FaUser, FaBook } from "react-icons/fa"; // Iconos de react-icons
+import { FaCar, FaUser, FaBook } from "react-icons/fa"; 
+import { useNavigate } from "react-router-dom"; 
 import OwnerForm from "../components/OwnerForm";
 import VehicleForm from "../components/VehicleForm";
-import RegistrationSummary from "../components/RegistrationSummary"; // Import corregido
-import axios from "axios";
+import RegistrationSummary from "../components/RegistrationSummary";
 
 export function Registration() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLastStep, setIsLastStep] = useState(false);
   const [isFirstStep, setIsFirstStep] = useState(true);
+  const navigate = useNavigate(); 
 
-  const handleNextStep = () => !isLastStep && setCurrentStep((cur) => cur + 1);
-  const handlePreviousStep = () => !isFirstStep && setCurrentStep((cur) => cur - 1);
-
-  const handleSearch = async () => {
-    const apiUrl = import.meta.env.VITE_API_KEY;
-    const searchUrl = `${apiUrl}owner/${dni}`;
-    const response = await axios.get(searchUrl);
-
-    if (response.data) {
-      setOwnerData(response.data);
-      localStorage.setItem("ownerData", JSON.stringify(response.data));
+  const handleNextStep = () => {
+    if (currentStep === 2) {
+      navigate("/workstation");
     } else {
-      setError("No se encontró ningún propietario con ese DNI.");
+      setCurrentStep((cur) => cur + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((cur) => cur - 1);
     }
   };
 
@@ -57,17 +56,15 @@ export function Registration() {
         {/* Navigation Buttons */}
         <div className="flex justify-between">
           <Button
-            disabled={isFirstStep}
+            disabled={currentStep === 0}
             onClick={handlePreviousStep}
-            className={currentStep === 0 ? "disable" : ""}
           >
             Previous
           </Button>
           <Button
             onClick={handleNextStep}
-            disabled={isLastStep}
           >
-            Next
+            {currentStep === 2 ? "Send" : "Next"}
           </Button>
         </div>
       </div>
