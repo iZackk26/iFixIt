@@ -34,6 +34,7 @@ export function VehicleForm() {
         setVehicleResult(response.data);  // Guardar el resultado del vehículo en el estado
         setShowSuccess(true); // Mostrar la alerta de éxito
         setShowError(false); // Ocultar la alerta de error
+        setVehicleData(response.data); // Guardar el resultado en el almacenamiento local
       } else {
         console.log("Vehicle not found");
         setVehicleResult(null);
