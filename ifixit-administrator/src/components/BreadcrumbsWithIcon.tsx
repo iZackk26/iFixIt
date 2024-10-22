@@ -36,7 +36,7 @@ export function BreadcrumbsWithIcon() {
   }
 
   return (
-    <Breadcrumbs>
+    <Breadcrumbs className="bg-transparent">
       {homeIcon}
 
       {pathnames.map((value, index) => {
@@ -46,7 +46,7 @@ export function BreadcrumbsWithIcon() {
 
         return isLast ? (
           <span key={to} className="font-semibold">
-            {label}
+            {label} 
           </span>
         ) : (
           <Link key={to} to={to} className="opacity-60">

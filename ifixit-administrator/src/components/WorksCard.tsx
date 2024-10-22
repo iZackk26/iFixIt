@@ -3,7 +3,7 @@ import {
   Typography,
   Button,
 } from "@material-tailwind/react";
-import { FaPencilAlt, FaCheck } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Para manejar la navegación
 
 interface WorksCardPropsType {
@@ -47,13 +47,7 @@ function WorksCard({ title, options, icon, detail, registrationID }: WorksCardPr
           >
             <FaPencilAlt className="h-4 w-4 text-gray-600" />
             <Typography className="!font-semibold text-xs text-gray-600 md:block hidden">
-              In progress
-            </Typography>
-          </Button>
-          <Button size="sm" variant="text" color="green" className="flex items-center gap-2">
-            <FaCheck className="h-4 w-4 text-green-800" />
-            <Typography className="!font-semibold text-xs text-green-800 md:block hidden">
-              Completed
+              Comentarios
             </Typography>
           </Button>
         </div>

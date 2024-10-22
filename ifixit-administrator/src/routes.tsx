@@ -9,10 +9,10 @@ import { Layout } from './components/Layout';
 import { useAuth } from './contexts/AuthContext';
 
 const Routing = () => {
-  const { isAuthenticated, user, loading } = useAuth();  // Añadir el estado de carga
+  const { isAuthenticated, loading } = useAuth();  // Añadir el estado de carga
 
   if (loading) {
-    return <div>Loading...</div>;  // Muestra un mensaje de carga mientras se verifica el estado de autenticación
+    return <div>Loading...</div>; 
   }
 
   return (
