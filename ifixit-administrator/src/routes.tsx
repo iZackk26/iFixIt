@@ -9,7 +9,11 @@ import { Layout } from './components/Layout';
 import { useAuth } from './contexts/AuthContext';
 
 const Routing = () => {
-  const { isAuthenticated } = useAuth(); 
+  const { isAuthenticated, user, loading } = useAuth();  // Añadir el estado de carga
+
+  if (loading) {
+    return <div>Loading...</div>;  // Muestra un mensaje de carga mientras se verifica el estado de autenticación
+  }
 
   return (
     <Routes>
@@ -20,7 +24,7 @@ const Routing = () => {
         <Route path="/registration" element={<Registration />} />
         <Route path="/workstation" element={<Works />} />
         <Route path="/billing" element={<Billing />} />
-        <Route path="/reports/:registrationID" element={<Report/>} />
+        <Route path="/reports/:registrationID" element={<Report />} />
       </Route>
     </Routes>
   );

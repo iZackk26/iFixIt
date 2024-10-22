@@ -122,36 +122,29 @@ const Report = () => {
   const handleMarkAsCompleted = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
-      let newStatus = '';
-  
+      let statusParam = 0;
+    
       if (registrationStatus === 'pendiente') {
-        newStatus = 'en proceso';
+        statusParam = 2;  // Pasar a "en proceso"
       } else if (registrationStatus === 'en proceso') {
-        newStatus = 'completado';
+        statusParam = 3;  // Pasar a "completado"
       }
   
-      console.log('Nuevo estado que se enviará:', newStatus);
-  
-      const response = await axios.put(`${apiUrl}registration/${registrationID}/status`, 
-        { status: newStatus },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-  
+      console.log('Estado actual:', registrationStatus);
+      console.log('URL:', `${apiUrl}registration/${registrationID}/status`);
+      console.log('Estado a enviar:', statusParam);
+    
+      const response = await axios.put(`${apiUrl}registration/${registrationID}/status`, {
+        status: statusParam,
+      });
+    
       if (response.status === 200) {
         console.log('Estado actualizado:', response.data);
-        setRegistrationStatus(newStatus);
-        alert(`Estado cambiado a: ${newStatus}`);
+        setRegistrationStatus(statusParam === 2 ? 'en proceso' : 'completado');
+        alert(`Estado cambiado a: ${statusParam === 2 ? 'en proceso' : 'completado'}`);
       }
     } catch (err) {
-      if (err.response) {
-        console.error('Error response:', err.response.data);
-        console.error('Error status:', err.response.status);
-        console.error('Error headers:', err.response.headers);
-      } else if (err.request) {
-        console.error('Error request:', err.request);
-      } else {
-        console.error('Error message:', err.message);
-      }
+      console.error('Error actualizando el estado:', err);
       alert('Error actualizando el estado');
     }
   };

@@ -22,7 +22,9 @@ export default function Login() {
         password: workerId,
       });
 
-      const user = response.data;
+      console.log("Datos del usuario recibidos:", response.data);
+
+      const user = response.data.user;
       login(user); // Llamar a la función login del contexto
       navigate('/'); // Redirigir al home
     } catch (error) {
@@ -56,7 +58,6 @@ export default function Login() {
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
               />
-              <i className="fas fa-envelope absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
           </div>
 
@@ -76,7 +77,6 @@ export default function Login() {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
               />
-              <i className="fas fa-lock absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
             {showError && (
               <div className="mt-4 animate-pulse">
