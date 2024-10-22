@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { Button, Input } from "@material-tailwind/react";
-import { FaSearch } from "react-icons/fa"; // Icons from react-icons
+import { Button, Input, Alert } from "@material-tailwind/react";
+import { FaSearch } from "react-icons/fa"; 
 import { AnimatePresence, motion } from 'framer-motion';
 import { getOwner } from '../utils/owner';
 import axios from 'axios';
@@ -13,6 +13,9 @@ export function VehicleForm() {
   const [vehicleResult, setVehicleResult] = useState<any>(null);
   const [isVehicleFormVisible, setIsVehicleFormVisible] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ brand: '', year: '', licensePlate: '', ownerID: '' });
+  const [showSuccess, setShowSuccess] = useState(false); // Estado para la alerta de éxito
+  const [showError, setShowError] = useState(false); // Estado para la alerta de error
+  const [addedVehiclePlate, setAddedVehiclePlate] = useState(''); // Almacena la placa del vehículo agregado
 
   const handleVehicleSearch = async () => {
     if (!vehicleSearch) {
@@ -29,13 +32,19 @@ export function VehicleForm() {
       if (response.data) {
         console.log('Vehicle found:', response.data);
         setVehicleResult(response.data);  // Guardar el resultado del vehículo en el estado
+        setShowSuccess(true); // Mostrar la alerta de éxito
+        setShowError(false); // Ocultar la alerta de error
       } else {
         console.log("Vehicle not found");
         setVehicleResult(null);
+        setShowSuccess(false); // No mostrar la alerta de éxito si no hay resultados
+        setShowError(true); // Mostrar la alerta de error
       }
     } catch (error) {
       console.error("Error searching for vehicle:", error);
       setVehicleResult(null);  // Borrar el resultado en caso de error
+      setShowSuccess(false); // No mostrar la alerta de éxito en caso de error
+      setShowError(true); // Mostrar la alerta de error
     }
   };
 
@@ -47,22 +56,29 @@ export function VehicleForm() {
       return;
     }
     const apiUrl = import.meta.env.VITE_API_KEY;
-    const searchUrl = `${apiUrl}vehicles/`;  // La URL con la ruta POST correcta
+    const addVehicleUrl = `${apiUrl}vehicles/`;  // La URL con la ruta POST correcta
 
-    const response = await axios.post(searchUrl, {
-      brand: newVehicle.brand,
-      year: newVehicle.year,
-      licensePlate: newVehicle.licensePlate,
-      ownerID: owner.id
-    });
+    try {
+      const response = await axios.post(addVehicleUrl, {
+        brand: newVehicle.brand,
+        year: newVehicle.year,
+        licensePlate: newVehicle.licensePlate,
+        ownerID: owner.id
+      });
 
-    if (response.data) {
-      console.log('Vehicle added:', response.data);
-      setVehicleData(response.data); // Guardar el resultado en el almacenamiento local
+      if (response.data) {
+        console.log('Vehicle added:', response.data);
+        setVehicleData(response.data); // Guardar el resultado en el almacenamiento local
+        setAddedVehiclePlate(response.data.licensePlate); // Almacenar la placa del vehículo agregado
+        setShowSuccess(true); // Mostrar la alerta de éxito
+        setShowError(false); // Ocultar la alerta de error si existía
+      }
+
+      setNewVehicle({ brand: '', year: '', licensePlate: '', ownerID: '' });
+      setIsVehicleFormVisible(false); // Ocultar el formulario después de agregar el vehículo
+    } catch (error) {
+      console.error("Error adding vehicle:", error);
     }
-
-    setNewVehicle({ brand: '', year: '', licensePlate: '', ownerID: '' });
-    setIsVehicleFormVisible(false); // Hide the form after adding the vehicle
   };
 
   return (
@@ -76,22 +92,15 @@ export function VehicleForm() {
           placeholder="Search vehicle by license plate"
           value={vehicleSearch}
           onChange={(e) => setVehicleSearch(e.target.value)}
-          className="pr-10" // Adds space for the icon on the right
+          className="pr-10"
         />
         <button
           onClick={handleVehicleSearch}
           className="absolute top-1/2 right-3 transform -translate-y-1/2"
         >
-          <FaSearch className="text-gray-500" /> {/* Search icon */}
+          <FaSearch className="text-gray-500" />
         </button>
       </div>
-      {vehicleResult ? (
-        <div className="p-4 border rounded">
-          <p>Vehicle found: {vehicleResult.brand} ({vehicleResult.year}), License Plate: {vehicleResult.licensePlate}</p>
-        </div>
-      ) : (
-        vehicleSearch && <p>No vehicle found with that license plate.</p>
-      )}
 
       {/* Button to show/hide the form to add a new vehicle */}
       <Button 
@@ -137,6 +146,26 @@ export function VehicleForm() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Show success alert */}
+      {showSuccess && (
+        <div className="mt-4 animate-pulse">
+          <Alert variant="gradient" color="green">
+            <span>
+              Vehicle {vehicleResult?.licensePlate || addedVehiclePlate} was successfully added
+            </span>
+          </Alert>
+        </div>
+      )}
+
+      {/* Show error alert */}
+      {showError && (
+        <div className="mt-4 animate-pulse">
+          <Alert variant="gradient" color="red">
+            <span>Vehicle not found</span>
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }
