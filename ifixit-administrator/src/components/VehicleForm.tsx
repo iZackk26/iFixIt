@@ -28,7 +28,7 @@ export function VehicleForm() {
   
       if (response.data) {
         console.log('Vehicle found:', response.data);
-        setVehicleResult(response.data);  // Guardar el resultado del vehículo en el estado
+        setVehicleData(response.data); // Guardar el resultado en el almacenamiento local
       } else {
         console.log("Vehicle not found");
         setVehicleResult(null);
