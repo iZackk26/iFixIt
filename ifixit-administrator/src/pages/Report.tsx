@@ -13,9 +13,12 @@ import axios from "axios";
 
 const Report = () => {
   const { registrationID } = useParams();
-  const [registrationData, setRegistrationData] = useState(null);
+  const [registrationData, setRegistrationData] = useState<any>(null);
+  const [price, setPrice] = useState<string>(""); // Estado para el precio
 
-  // Imprimir registrationID para verificar si se obtiene correctamente
+  // Simular un estado de la base de datos para el proceso de registro
+  const [registrationStatus, setRegistrationStatus] = useState<'pendiente' | 'en proceso' | 'completado'>('pendiente');
+
   useEffect(() => {
     console.log('Registration ID:', registrationID);
   }, [registrationID]);
@@ -28,6 +31,7 @@ const Report = () => {
       if (response) {
         console.log('Registration data:', response.data);
         setRegistrationData(response.data);
+        setRegistrationStatus(response.data.status); // Simular estado de la base de datos
       }
     } catch (err) {
       console.error('Error fetching registration data:', err);
@@ -56,10 +60,54 @@ const Report = () => {
     </div>
   );
 
+  // Función para manejar la actualización del comentario
+  const handleUpdateComment = () => {
+    const comment = registrationData.comments.comment;
+    console.log('Comentario actualizado:', comment);
+    // Aquí va la lógica para subir a la base de datos
+    // subir a la base de datos
+  };
+
+  // Función para manejar la confirmación del precio
+  const handleConfirmPrice = () => {
+    console.log('Precio confirmado:', price);
+    // Aquí va la lógica para actualizar el precio en la base de datos
+    // actualizar a la base de datos
+  };
+
+  // Función para marcar el registro como pagado
+  const handleMarkAsPaid = () => {
+    console.log('Registro marcado como pagado');
+    // Aquí va la lógica para cambiar el estado de pagado en la base de datos
+    // cambiar estado de pagado a la base de datos
+  };
+
+  // Función para manejar el estado de completado
+  const handleMarkAsCompleted = () => {
+    if (registrationStatus === 'pendiente') {
+      console.log('Estado cambiado a: en proceso');
+      setRegistrationStatus('en proceso');
+      // Aquí va la lógica para actualizar el estado en la base de datos
+      // actualizar estado a 'en proceso' en la base de datos
+    } else if (registrationStatus === 'en proceso') {
+      console.log('Estado cambiado a: completado');
+      setRegistrationStatus('completado');
+      // Aquí va la lógica para actualizar el estado en la base de datos
+      // actualizar estado a 'completado' en la base de datos
+    }
+  };
+
   // Comprobación para ver si `registrationData` está disponible
   if (!registrationData) {
-    return <p>Loading...</p>; // Mostrar un mensaje de carga hasta que los datos estén disponibles
+    return <p>Loading...</p>;
   }
+
+  // Determinar el texto del botón según el estado del registro
+  const getCompletionButtonText = () => {
+    if (registrationStatus === 'pendiente') return 'Marcar en proceso';
+    if (registrationStatus === 'en proceso') return 'Marcar como Completado';
+    return 'Completado'; // Si el estado es 'completado'
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -74,22 +122,22 @@ const Report = () => {
           <InfoCard
             icon={<FaUser className="h-6 w-6 text-gray-400" />}
             title="Nombre"
-            detail={registrationData.ownername}  // Cambio para coincidir con los datos
+            detail={registrationData.ownername}
           />
           <InfoCard
             icon={<FaIdCard className="h-6 w-6 text-gray-400" />}
             title="DNI"
-            detail={registrationData.ownerdni}  // Cambio para coincidir con los datos
+            detail={registrationData.ownerdni}
           />
           <InfoCard
             icon={<FaEnvelope className="h-6 w-6 text-gray-400" />}
             title="Correo"
-            detail={registrationData.owneremail}  // Cambio para coincidir con los datos
+            detail={registrationData.owneremail}
           />
           <InfoCard
             icon={<FaPhone className="h-6 w-6 text-gray-400" />}
             title="Teléfono"
-            detail={registrationData.ownerphone}  // Cambio para coincidir con los datos
+            detail={registrationData.ownerphone}
           />
         </div>
       </div>
@@ -102,17 +150,17 @@ const Report = () => {
             <InfoCard
               icon={<FaCar className="h-6 w-6 text-gray-400" />}
               title="Marca"
-              detail={registrationData.vehiclebrand}  // Cambio para coincidir con los datos
+              detail={registrationData.vehiclebrand}
             />
             <InfoCard
               icon={<FaCalendarDay className="h-6 w-6 text-gray-400" />}
               title="Año"
-              detail={registrationData.vehicleyear}  // Cambio para coincidir con los datos
+              detail={registrationData.vehicleyear}
             />
             <InfoCard
               icon={<FaCreditCard className="h-6 w-6 text-gray-400" />}
               title="Placa"
-              detail={registrationData.vehiclelicenseplate}  // Cambio para coincidir con los datos
+              detail={registrationData.vehiclelicenseplate}
             />
           </div>
         </div>
@@ -128,16 +176,61 @@ const Report = () => {
           </div>
         </div>
         <textarea
-          value={registrationData.comments.comment}  // Valor actual del comentario
+          value={registrationData.comments.comment}
           onChange={(e) => setRegistrationData({
             ...registrationData,
             comments: { ...registrationData.comments, comment: e.target.value }
           })}
           className="w-full p-2 border border-gray-300 rounded-lg flex-grow"
         />
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={handleUpdateComment}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            Actualizar
+          </button>
+        </div>
+      </div>
+
+      {/* Entrada para el precio y botones de acción */}
+      <div className="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
+        <div className="flex space-x-4 items-center">
+          <label className="text-md font-semibold">Precio en dólares:</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="border border-gray-300 p-2 rounded-lg"
+            placeholder="Ingrese el precio"
+          />
+          <button
+            onClick={handleConfirmPrice}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300"
+          >
+            Confirmar
+          </button>
+        </div>
+        <div className="flex space-x-4">
+          <button
+            onClick={handleMarkAsPaid}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
+          >
+            Marcar como Pagado
+          </button>
+          <button
+            onClick={handleMarkAsCompleted}
+            className={`bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300 ${
+              registrationStatus === 'completado' ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={registrationStatus === 'completado'}
+          >
+            {getCompletionButtonText()}
+          </button>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default Report;
