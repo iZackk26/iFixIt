@@ -76,6 +76,7 @@ export default function Home() {
                     <TouchableOpacity
                         key={order.ordernumber}
                         className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden"
+                        onPress={() => navigation.navigate('VehicleRevision', { orderId: order.ordernumber })} // Aquí pasas el número de orden
                         //onPress={() => navigation.navigate('OrderDetails', { order })}
                     >
                         <View className="flex-row items-center p-4 space-x-4">

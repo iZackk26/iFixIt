@@ -58,10 +58,8 @@ ADD COLUMN comments JSONB;
 
 SELECT * FROM information_schema.tables WHERE table_name = 'registration';
 
-SELECT r.orderNumber, r.status, v.brand, v.licensePlate, o.name, o.mail, o.phone
-FROM Registration r
-JOIN Vehicle v ON r.vehicleID = v.id
-JOIN Owner o ON r.ownerID = o.id
-WHERE r.status IN ('pendiente', 'en proceso');
 
+SELECT *
+FROM Registration
+WHERE price > 0;
 

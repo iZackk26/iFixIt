@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 
 interface Observation {
   title: string;
@@ -16,6 +17,9 @@ interface VehicleRevision {
 }
 
 export default function VehicleRevision() {
+  const route = useRoute();
+  const { orderId } = route.params; // Recibe el parámetro
+
   const revision: VehicleRevision = {
     worker: "Juan Pérez",
     date: "2023-10-21",
