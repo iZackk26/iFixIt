@@ -11,15 +11,15 @@ interface Transaction {
   status: 'paid' | 'pending';
 }
 
-  // Función para formatear la fecha
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+// Función para formatear la fecha
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
 const Billing: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -68,8 +68,8 @@ const Billing: React.FC = () => {
       <h2 className="text-xl font-bold mb-4">History Transactions</h2>
       <p className="text-gray-500 mb-6">Track and monitor your financial activity.</p>
 
-      {transactions.map((transaction) => (
-        <div key={transaction.id} className="mb-4">
+      {transactions.map((transaction, index) => (
+        <div key={transaction.id || index} className="mb-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <div className="border rounded-md p-2 mr-3">

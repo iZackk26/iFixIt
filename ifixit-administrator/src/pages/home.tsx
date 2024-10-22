@@ -10,7 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
-      console.log('Usuario autenticado:', user.name); // Imprimir solo si user está definido
+      console.log('Usuario autenticado:', user); // Imprimir solo si user está definido
     }
   }, [user]);
 
