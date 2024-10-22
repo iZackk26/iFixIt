@@ -1,14 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from "./pages/Login";
-
-import Registration from "./pages/registration";
-
+import Routing from "./routes";
+import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   return (
-    <div className="flex w-full h-full justify-center items-center">
-      <Registration />
-    </div>
+    <Router>
+      <Routing />
+    </Router>
   )
 }
 
