@@ -10,12 +10,12 @@ import Report from "./pages/report";
 const Routing = () => {
   return (
     <Routes>
-        <Route path="/" element={<Login/>} />
-        <Route path="/home" element={<Home/>} />
-        <Route path="/registration" element={<Registration/>} />
-        <Route path="/workstation" element={<Works/>} />
-        <Route path="/billing" element={<Billing/>} />
-        <Route path="/reports" element={<Report/>} />
+      <Route path="/" element={<Login/>} />
+      <Route path="/home" element={<Home/>} />
+      <Route path="/registration" element={<Registration/>} />
+      <Route path="/workstation" element={<Works/>} />
+      <Route path="/billing" element={<Billing/>} />
+      <Route path="/reports/:registrationID" element={<Report/>} />
     </Routes>
   );
 };

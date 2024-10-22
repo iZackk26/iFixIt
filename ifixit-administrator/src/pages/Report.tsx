@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaUser,
   FaCar,
@@ -8,11 +8,35 @@ import {
   FaCalendarDay,
   FaCreditCard,
 } from "react-icons/fa";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const Report = () => {
-  const [comentarios, setComentarios] = useState(
-    "El vehículo requiere cambio de aceite y revisión de frenos. Se recomienda programar una cita de seguimiento en 3 meses."
-  );
+  const { registrationID } = useParams();
+  const [registrationData, setRegistrationData] = useState(null);
+
+  // Imprimir registrationID para verificar si se obtiene correctamente
+  useEffect(() => {
+    console.log('Registration ID:', registrationID);
+  }, [registrationID]);
+
+  const fetchRegistrationData = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY;
+      const response = await axios.get(`${apiUrl}registration/${registrationID}/details`);
+
+      if (response) {
+        console.log('Registration data:', response.data);
+        setRegistrationData(response.data);
+      }
+    } catch (err) {
+      console.error('Error fetching registration data:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRegistrationData();
+  }, [registrationID]);
 
   const InfoCard = ({
     icon,
@@ -32,6 +56,11 @@ const Report = () => {
     </div>
   );
 
+  // Comprobación para ver si `registrationData` está disponible
+  if (!registrationData) {
+    return <p>Loading...</p>; // Mostrar un mensaje de carga hasta que los datos estén disponibles
+  }
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold text-center mb-6">
@@ -45,22 +74,22 @@ const Report = () => {
           <InfoCard
             icon={<FaUser className="h-6 w-6 text-gray-400" />}
             title="Nombre"
-            detail="Juan Pérez"
+            detail={registrationData.ownername}  // Cambio para coincidir con los datos
           />
           <InfoCard
             icon={<FaIdCard className="h-6 w-6 text-gray-400" />}
             title="DNI"
-            detail="12345678"
+            detail={registrationData.ownerdni}  // Cambio para coincidir con los datos
           />
           <InfoCard
             icon={<FaEnvelope className="h-6 w-6 text-gray-400" />}
             title="Correo"
-            detail="juan.perez@email.com"
+            detail={registrationData.owneremail}  // Cambio para coincidir con los datos
           />
           <InfoCard
             icon={<FaPhone className="h-6 w-6 text-gray-400" />}
             title="Teléfono"
-            detail="+51 987 654 321"
+            detail={registrationData.ownerphone}  // Cambio para coincidir con los datos
           />
         </div>
       </div>
@@ -69,54 +98,42 @@ const Report = () => {
       <div className="bg-white shadow-md rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Información del Vehículo</h2>
         <div className="flex items-start space-x-4">
-          {/* Icono del vehículo */}
-        
           <div className="flex flex-row justify-between w-full px-4">
-     
-            <div className="flex items-start space-x-4">
-              <div className="border border-gray-200 p-2.5 rounded-lg">
-                <FaCar className="h-6 w-6 text-gray-400" />
-              </div>
-              <div>
-              <p className="font-bold text-blue-gray-700">Marca</p>
-              <p className="!text-gray-600 text-xs font-normal">Toyota</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4">
-              <div className="border border-gray-200 p-2.5 rounded-lg">
-                <FaCalendarDay className="h-6 w-6 text-gray-400" />
-              </div>
-              <div>
-                <p className="font-bold text-blue-gray-700">Año</p>
-                <p className="!text-gray-600 text-xs font-normal">2020</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4">
-              <div className="border border-gray-200 p-2.5 rounded-lg">
-                <FaCreditCard className="h-6 w-6 text-gray-400" />
-              </div>
-              <div>
-                <p className="font-bold text-blue-gray-700">Placa</p>
-                <p className="!text-gray-600 text-xs font-normal">ABC-123</p>
-              </div>
-            </div>
+            <InfoCard
+              icon={<FaCar className="h-6 w-6 text-gray-400" />}
+              title="Marca"
+              detail={registrationData.vehiclebrand}  // Cambio para coincidir con los datos
+            />
+            <InfoCard
+              icon={<FaCalendarDay className="h-6 w-6 text-gray-400" />}
+              title="Año"
+              detail={registrationData.vehicleyear}  // Cambio para coincidir con los datos
+            />
+            <InfoCard
+              icon={<FaCreditCard className="h-6 w-6 text-gray-400" />}
+              title="Placa"
+              detail={registrationData.vehiclelicenseplate}  // Cambio para coincidir con los datos
+            />
           </div>
         </div>
       </div>
 
-      {/* Comentarios y empleado */}
+      {/* Comentarios */}
       <div className="bg-white shadow-md rounded-lg p-4 h-96 flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-semibold">Comentarios</h3>
           <div className="mr-2">
-            <p className="text-md font-semibold">Josué</p>
-            <p className="text-sm text-gray-500">Mecánico</p>
+            <p className="text-md font-semibold">{registrationData.employeename}</p>
+            <p className="text-sm text-gray-500">{registrationData.employeeposition}</p>
           </div>
         </div>
         <textarea
-          value={comentarios}
-          onChange={(e) => setComentarios(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-lg flex-grow" // flex-grow permite que el textarea crezca para llenar el espacio restante
+          value={registrationData.comments.comment}  // Valor actual del comentario
+          onChange={(e) => setRegistrationData({
+            ...registrationData,
+            comments: { ...registrationData.comments, comment: e.target.value }
+          })}
+          className="w-full p-2 border border-gray-300 rounded-lg flex-grow"
         />
       </div>
     </div>

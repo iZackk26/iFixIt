@@ -10,40 +10,6 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 
 
-const WorksCardData = [
-  {
-    icon: <FaCar className="h-6 w-6 text-gray-900" />,
-    title: "Toyota Corolla", // Modelo de carro
-    detail: "ABC1234", // Placa
-    options: {
-      "Nombre": "Emma Roberts", // Nombre del propietario
-      "Email Address": "emma@mail.com", // Email (sin cambios)
-      "Phone": "123-456-7890", // Teléfono
-    },
-  },
-  {
-    icon: <FaCar className="h-6 w-6 text-gray-900" />,
-    title: "Honda Civic", // Modelo de carro
-    detail: "XYZ5678", // Placa
-    options: {
-      "Nombre": "Marcel Glock", // Nombre del propietario
-      "Email Address": "marcel@mail.com", // Email (sin cambios)
-      "Phone": "987-654-3210", // Teléfono
-    },
-  },
-  {
-    icon: <FaCar className="h-6 w-6 text-gray-900" />,
-    title: "Ford Mustang", // Modelo de carro
-    detail: "LMN1234", // Placa
-    options: {
-      "Nombre": "Misha Stam", // Nombre del propietario
-      "Email Address": "misha@mail.com", // Email (sin cambios)
-      "Phone": "555-123-4567", // Teléfono
-    },
-  },
-];
-
-
 function Works() {
   const [registrations, setRegistrations] = useState([]);
 
@@ -92,8 +58,9 @@ function Works() {
               key={key}
               icon={<FaCar className="h-6 w-6 text-gray-900" />} // Añadir el ícono
               title={registration.title} // Modelo de carro
-              detail="" // No tienes la placa en la respuesta actual, así que lo dejé vacío
+              detail={registration.detail} // No tienes la placa en la respuesta actual, así que lo dejé vacío
               options={registration.options} // Información del propietario
+              registrationID={registration.registrationID} // ID de la registración
             />
           ))}
         </CardBody>
