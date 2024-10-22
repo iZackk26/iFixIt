@@ -61,41 +61,95 @@ const Report = () => {
   );
 
   // Función para manejar la actualización del comentario
-  const handleUpdateComment = () => {
-    const comment = registrationData.comments.comment;
-    console.log('Comentario actualizado:', comment);
-    // Aquí va la lógica para subir a la base de datos
-    // subir a la base de datos
+  const handleUpdateComment = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY;
+      const response = await axios.put(`${apiUrl}registration/${registrationID}/comments`, {
+        comment: registrationData.comments.comment,  // Enviar el nuevo comentario
+      });
+  
+      if (response.status === 200) {
+        console.log('Comentarios actualizados:', response.data);
+        alert('Comentarios actualizados exitosamente');
+      }
+    } catch (err) {
+      console.error('Error actualizando los comentarios:', err);
+      alert('Error actualizando los comentarios');
+    }
   };
 
   // Función para manejar la confirmación del precio
-  const handleConfirmPrice = () => {
-    console.log('Precio confirmado:', price);
-    // Aquí va la lógica para actualizar el precio en la base de datos
-    // actualizar a la base de datos
+  const handleConfirmPrice = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY;
+      const response = await axios.put(`${apiUrl}registration/${registrationID}/price`, {
+        price: parseFloat(price),  // Enviar el precio como un número decimal
+      });
+  
+      if (response.status === 200) {
+        console.log('Precio actualizado:', response.data);
+        alert('Precio actualizado exitosamente');
+      }
+    } catch (err) {
+      console.error('Error actualizando el precio:', err);
+      alert('Error actualizando el precio');
+    }
   };
 
   // Función para marcar el registro como pagado
-  const handleMarkAsPaid = () => {
-    console.log('Registro marcado como pagado');
-    // Aquí va la lógica para cambiar el estado de pagado en la base de datos
-    // cambiar estado de pagado a la base de datos
+  const handleMarkAsPaid = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY;
+      const response = await axios.put(`${apiUrl}registration/${registrationID}/pay`);
+  
+      if (response.status === 200) {
+        console.log('Registro marcado como pagado:', response.data);
+        alert('Registro marcado como pagado exitosamente');
+      }
+    } catch (err) {
+      console.error('Error marcando como pagado:', err);
+      alert('Error marcando como pagado');
+    }
   };
 
   // Función para manejar el estado de completado
-  const handleMarkAsCompleted = () => {
-    if (registrationStatus === 'pendiente') {
-      console.log('Estado cambiado a: en proceso');
-      setRegistrationStatus('en proceso');
-      // Aquí va la lógica para actualizar el estado en la base de datos
-      // actualizar estado a 'en proceso' en la base de datos
-    } else if (registrationStatus === 'en proceso') {
-      console.log('Estado cambiado a: completado');
-      setRegistrationStatus('completado');
-      // Aquí va la lógica para actualizar el estado en la base de datos
-      // actualizar estado a 'completado' en la base de datos
+  const handleMarkAsCompleted = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY;
+      let newStatus = '';
+  
+      if (registrationStatus === 'pendiente') {
+        newStatus = 'en proceso';
+      } else if (registrationStatus === 'en proceso') {
+        newStatus = 'completado';
+      }
+  
+      console.log('Nuevo estado que se enviará:', newStatus);
+  
+      const response = await axios.put(`${apiUrl}registration/${registrationID}/status`, 
+        { status: newStatus },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+  
+      if (response.status === 200) {
+        console.log('Estado actualizado:', response.data);
+        setRegistrationStatus(newStatus);
+        alert(`Estado cambiado a: ${newStatus}`);
+      }
+    } catch (err) {
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+        console.error('Error status:', err.response.status);
+        console.error('Error headers:', err.response.headers);
+      } else if (err.request) {
+        console.error('Error request:', err.request);
+      } else {
+        console.error('Error message:', err.message);
+      }
+      alert('Error actualizando el estado');
     }
   };
+  
 
   // Comprobación para ver si `registrationData` está disponible
   if (!registrationData) {
