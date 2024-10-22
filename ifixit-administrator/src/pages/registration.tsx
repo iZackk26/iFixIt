@@ -8,6 +8,7 @@ import RegistrationSummary from "../components/RegistrationSummary";
 import { getUser } from "../utils/auth";
 import { getOwner } from "../utils/owner";
 import { getVehicle } from "../utils/vehicle";
+import axios from "axios";
 
 export function Registration() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -22,16 +23,15 @@ export function Registration() {
   const handleSubmit = async () => {
 
     const apiUrl = import.meta.env.VITE_API_KEY;
-    const searchUrl = `${apiUrl}registration/`;  // La URL con la ruta POST correcta
+    const searchUrl = `${apiUrl}registration/`;  
 
     if (!ownerData || !vehicleData || !userData) {
       console.error("Missing data to register the vehicle");
       return;
     }
-    // Datos que enviarás en la solicitud
     const registrationData = {
-      ownerID: ownerData.id, // Cambia por el ID real del propietario
-      employeeID: userData.id, // Cambia por el ID real del empleado
+      ownerID: ownerData.id, 
+      employeeID: userData.id, 
       vehicleID: vehicleData.id,
       date: new Date().toISOString(),
       comments: {
