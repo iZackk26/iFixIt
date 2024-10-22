@@ -3,6 +3,7 @@ import { Button, Input } from "@material-tailwind/react";
 import { FaSearch } from "react-icons/fa"; // Icons from react-icons
 import { AnimatePresence, motion } from 'framer-motion';
 import axios from 'axios';
+import { setOwnerData } from '../utils/owner';
 
 export function OwnerForm() {
   const [ownerSearch, setOwnerSearch] = useState('');
@@ -26,7 +27,7 @@ export function OwnerForm() {
       
       if (response.data) {
         console.log('Owner found:', response.data);
-        setOwnerResult(response.data); // Actualizar el resultado de la búsqueda
+        setOwnerData(response.data); // Guardar el resultado en el almacenamiento local
       } else {
         console.log("No owner found with that DNI");
         setOwnerResult(null);
