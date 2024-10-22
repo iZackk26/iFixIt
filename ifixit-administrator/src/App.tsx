@@ -1,13 +1,15 @@
-import { Button } from "@material-tailwind/react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from "./Login";
 
 function App() {
   return (
-    <>
-    <div className="flex w-full h-full justify-center items-center">
-      <Button>Button</Button>
+    <div className='flex items-center justify-center bg-white w-screen h-screen'>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Login />} />
+          </Routes>
+        </Router>
     </div>
-
-    </>
   )
 }
 
