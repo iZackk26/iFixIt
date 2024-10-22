@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import OwnerForm from "../components/OwnerForm";
 import VehicleForm from "../components/VehicleForm";
 import RegistrationSummary from "../components/RegistrationSummary";
+import { getUser } from "../utils/auth";
+import { getOwner } from "../utils/owner";
+import { getVehicle } from "../utils/vehicle";
 
 export function Registration() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -12,8 +15,38 @@ export function Registration() {
   const [isFirstStep, setIsFirstStep] = useState(true);
   const navigate = useNavigate(); 
 
-  const handleNextStep = () => {
+  const userData = getUser();
+  const ownerData = getOwner();
+  const vehicleData = getVehicle();
+
+  const handleSubmit = async () => {
+
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const searchUrl = `${apiUrl}registration/`;  // La URL con la ruta POST correcta
+
+    if (!ownerData || !vehicleData || !userData) {
+      console.error("Missing data to register the vehicle");
+      return;
+    }
+    // Datos que enviarás en la solicitud
+    const registrationData = {
+      ownerID: ownerData.id, // Cambia por el ID real del propietario
+      employeeID: userData.id, // Cambia por el ID real del empleado
+      vehicleID: vehicleData.id,
+      date: new Date().toISOString(),
+      comments: {
+        comment: "Vehicle registered",
+      }
+    };
+    const response = await axios.post(searchUrl, registrationData);
+    if (response.data) {
+      console.log('Vehicle registered:', response.data);
+    }
+  }
+
+  const handleNextStep = async () => {
     if (currentStep === 2) {
+      await handleSubmit();
       navigate("/workstation");
     } else {
       setCurrentStep((cur) => cur + 1);
