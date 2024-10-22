@@ -6,6 +6,9 @@ CREATE TABLE Owner (
     phone BIGINT
 );
 
+-- add dni to Owner
+ALTER TABLE Owner ADD COLUMN dni VARCHAR(255);
+
 -- Crear la tabla Vehicle
 CREATE TABLE Vehicle (
     id SERIAL PRIMARY KEY,
@@ -38,3 +41,9 @@ CREATE TABLE Registration (
     CONSTRAINT fk_employee_registration FOREIGN KEY(employeeID) REFERENCES Employee(id) ON DELETE SET NULL,
     CONSTRAINT fk_vehicle_registration FOREIGN KEY(vehicleID) REFERENCES Vehicle(id) ON DELETE SET NULL
 );
+
+
+ALTER TABLE Registration
+ADD COLUMN comments JSONB;
+
+SELECT * FROM information_schema.tables WHERE table_name = 'registration';
