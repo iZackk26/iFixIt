@@ -10,8 +10,8 @@ import Report from "./pages/report";
 const Routing = () => {
   return (
     <Routes>
-        <Route path="/" element={<Home/>} />
-        <Route path="/login" element={<Login/>} />
+        <Route path="/" element={<Login/>} />
+        <Route path="/home" element={<Home/>} />
         <Route path="/registration" element={<Registration/>} />
         <Route path="/works" element={<Works/>} />
         <Route path="/billing" element={<Billing/>} />

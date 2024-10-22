@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@material-tailwind/react";
 import OwnerForm from "../components/OwnerForm";
 import VehicleForm from "../components/VehicleForm";
+import axios from "axios";
 
 export function Registration() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -17,6 +18,21 @@ export function Registration() {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  const handleSearch = async () => {
+    const apiUrl = import.meta.env.VITE_API_KEY;
+
+    const searchUrl = `${apiUrl}owner/${dni}`;
+    const response = await axios.get(searchUrl);
+
+    if (response.data) {
+      setOwnerData(response.data);
+      // Almacenar en localStorage
+      localStorage.setItem("ownerData", JSON.stringify(response.data));
+    } else {
+      setError("No se encontró ningún propietario con ese DNI.");
+    }
+  }
 
   return (
     <div className="flex w-full h-screen justify-center items-center">

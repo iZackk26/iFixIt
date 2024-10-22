@@ -1,27 +1,58 @@
-"use client";
-
 import { useState } from 'react';
 import { Button, Input } from "@material-tailwind/react";
 import { FaSearch } from "react-icons/fa"; // Icons from react-icons
 import { AnimatePresence, motion } from 'framer-motion';
+import axios from 'axios';
 
 export function OwnerForm() {
   const [ownerSearch, setOwnerSearch] = useState('');
   const [ownerResult, setOwnerResult] = useState<any>(null);
   const [isOwnerFormVisible, setIsOwnerFormVisible] = useState(false);
-  const [newOwner, setNewOwner] = useState({ name: '', email: '' });
+  const [newOwner, setNewOwner] = useState({ name: '', mail: '', phone: '', dni: '' });
 
-  const handleOwnerSearch = () => {
-    // Simulated owner search by ID (simple logic)
-    const result = ownerSearch === '12345678' ? { name: 'John Doe', dni: '12345678' } : null;
-    setOwnerResult(result);
+  const handleOwnerSearch = async () => {
+    if (!ownerSearch) {
+      console.error("No DNI provided");
+      return;
+    }
+  
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const searchUrl = `${apiUrl}owner/dni`;  // La URL con la ruta POST correcta
+  
+    try {
+      const response = await axios.post(searchUrl, {
+        dni: ownerSearch // Enviar el DNI en el cuerpo
+      });
+      
+      if (response.data) {
+        console.log('Owner found:', response.data);
+        setOwnerResult(response.data); // Actualizar el resultado de la búsqueda
+      } else {
+        console.log("No owner found with that DNI");
+        setOwnerResult(null);
+      }
+    } catch (error) {
+      console.error("Error searching for owner:", error);
+      setOwnerResult(null); // Asegúrate de borrar el resultado anterior en caso de error
+    }
   };
+  
 
-  const handleAddOwner = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddOwner = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Logic to add the new owner
     console.log('New Owner:', newOwner);
-    setNewOwner({ name: '', email: '' });
+
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const addOwnerUrl = `${apiUrl}owner/`;
+
+    const response = await axios.post(addOwnerUrl, newOwner);
+
+    if (response.data) {
+      console.log('Owner added:', response.data);
+    }
+
+    setNewOwner({ name: '', mail: '', phone: '', dni: '' }); // Clear the form after adding the owner
     setIsOwnerFormVisible(false); // Hide the form after adding the owner
   };
 
@@ -83,14 +114,21 @@ export function OwnerForm() {
                 label="Email" 
                 type="email" 
                 value={newOwner.email} 
-                onChange={(e) => setNewOwner({ ...newOwner, email: e.target.value })}
+                onChange={(e) => setNewOwner({ ...newOwner, mail: e.target.value })}
                 required
               />
               <Input 
                 label="Phone" 
                 type="tel" 
-                value={newOwner.email} 
-                onChange={(e) => setNewOwner({ ...newOwner, email: e.target.value })}
+                value={newOwner.phone} 
+                onChange={(e) => setNewOwner({ ...newOwner, phone: e.target.value })}
+                required
+              />
+              <Input
+                label="DNI"
+                type="text"
+                value={newOwner.dni}
+                onChange={(e) => setNewOwner({ ...newOwner, dni: e.target.value })}
                 required
               />
               <Button type="submit" fullWidth>Add Owner</Button>
