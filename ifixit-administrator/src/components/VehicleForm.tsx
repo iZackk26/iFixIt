@@ -6,6 +6,7 @@ import { FaSearch } from "react-icons/fa"; // Icons from react-icons
 import { AnimatePresence, motion } from 'framer-motion';
 import { getOwner } from '../utils/owner';
 import axios from 'axios';
+import { setVehicleData } from '../utils/vehicle';
 
 export function VehicleForm() {
   const [vehicleSearch, setVehicleSearch] = useState('');
@@ -13,10 +14,29 @@ export function VehicleForm() {
   const [isVehicleFormVisible, setIsVehicleFormVisible] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ brand: '', year: '', licensePlate: '', ownerID: '' });
 
-  const handleVehicleSearch = () => {
-    // Simulated vehicle search by license plate (simple logic)
-    const result = vehicleSearch;
-    setVehicleResult(result);
+  const handleVehicleSearch = async () => {
+    if (!vehicleSearch) {
+      console.error("License plate is required");
+      return;
+    }
+  
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const searchUrl = `${apiUrl}vehicles/licensePlate/${vehicleSearch}`;  // Completa la URL con la placa del vehículo
+  
+    try {
+      const response = await axios.get(searchUrl); // Hacer la solicitud GET al endpoint de la API
+  
+      if (response.data) {
+        console.log('Vehicle found:', response.data);
+        setVehicleResult(response.data);  // Guardar el resultado del vehículo en el estado
+      } else {
+        console.log("Vehicle not found");
+        setVehicleResult(null);
+      }
+    } catch (error) {
+      console.error("Error searching for vehicle:", error);
+      setVehicleResult(null);  // Borrar el resultado en caso de error
+    }
   };
 
   const handleAddVehicle = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,6 +58,7 @@ export function VehicleForm() {
 
     if (response.data) {
       console.log('Vehicle added:', response.data);
+      setVehicleData(response.data); // Guardar el resultado en el almacenamiento local
     }
 
     setNewVehicle({ brand: '', year: '', licensePlate: '', ownerID: '' });
