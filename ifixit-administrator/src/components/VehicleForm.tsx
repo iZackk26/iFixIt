@@ -4,24 +4,43 @@ import { useState } from 'react';
 import { Button, Input } from "@material-tailwind/react";
 import { FaSearch } from "react-icons/fa"; // Icons from react-icons
 import { AnimatePresence, motion } from 'framer-motion';
+import { getOwner } from '../utils/owner';
+import axios from 'axios';
 
 export function VehicleForm() {
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleResult, setVehicleResult] = useState<any>(null);
   const [isVehicleFormVisible, setIsVehicleFormVisible] = useState(false);
-  const [newVehicle, setNewVehicle] = useState({ brand: '', year: '', licensePlate: '' });
+  const [newVehicle, setNewVehicle] = useState({ brand: '', year: '', licensePlate: '', ownerID: '' });
 
   const handleVehicleSearch = () => {
     // Simulated vehicle search by license plate (simple logic)
-    const result = vehicleSearch === 'ABC123' ? { brand: 'Toyota', year: 2020, licensePlate: 'ABC123' } : null;
+    const result = vehicleSearch;
     setVehicleResult(result);
   };
 
-  const handleAddVehicle = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddVehicle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Logic to add the new vehicle
-    console.log('New Vehicle:', newVehicle);
-    setNewVehicle({ brand: '', year: '', licensePlate: '' });
+    const owner = getOwner();
+    if (!owner) {
+      console.error('No owner found');
+      return;
+    }
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const searchUrl = `${apiUrl}vehicles/`;  // La URL con la ruta POST correcta
+
+    const response = await axios.post(searchUrl, {
+      brand: newVehicle.brand,
+      year: newVehicle.year,
+      licensePlate: newVehicle.licensePlate,
+      ownerID: owner.id
+    });
+
+    if (response.data) {
+      console.log('Vehicle added:', response.data);
+    }
+
+    setNewVehicle({ brand: '', year: '', licensePlate: '', ownerID: '' });
     setIsVehicleFormVisible(false); // Hide the form after adding the vehicle
   };
 
