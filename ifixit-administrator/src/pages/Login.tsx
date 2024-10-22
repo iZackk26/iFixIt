@@ -1,27 +1,35 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react';
 import axios from 'axios';
 import { setAuthData } from '../utils/auth';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 
 export default function Login() {
     const [commerceCredentials, setCommerceCredentials] = useState("");
     const [workerId, setWorkerId] = useState("");
+    const navigate = useNavigate(); // Define useNavigate
 
     // Método para manejar el inicio de sesión
     const submitLogin = async (e) => {
         e.preventDefault();
         // Lógica para el manejo del login
         const apiUrl = import.meta.env.VITE_API_KEY;
-        const newApi = apiUrl + 'employee/login/'
+        const newApi = apiUrl + 'employee/login/';
 
+        try {
+            const response = await axios.post(newApi, {
+                mail: commerceCredentials,
+                password: workerId
+            });
 
-        const response = await axios.post(newApi, {
-            mail: commerceCredentials,
-            password: workerId
-        });
+            const user = response.data;
+            setAuthData(user);
 
-        const user = response.data;
-        setAuthData(user);
-
+            // Redirige al usuario a /home si el login es exitoso
+            navigate('/home');
+        } catch (error) {
+            console.error("Error logging in:", error);
+            // Aquí puedes agregar manejo de errores si es necesario
+        }
     };
 
     return (
@@ -40,7 +48,7 @@ export default function Login() {
                         <div className="relative">
                             <input
                                 id="commerceCredentials"
-                                type="text"  // Cambiado a 'text'
+                                type="text"
                                 value={commerceCredentials}
                                 onChange={(e) => setCommerceCredentials(e.target.value)}
                                 placeholder="Enter your email"
@@ -58,7 +66,7 @@ export default function Login() {
                         <div className="relative">
                             <input
                                 id="workerId"
-                                type="password"  // Cambiado a 'password'
+                                type="password"
                                 value={workerId}
                                 onChange={(e) => setWorkerId(e.target.value)}
                                 placeholder="Enter your password"
@@ -78,5 +86,4 @@ export default function Login() {
             </div>
         </div>
     );
-    
 }
