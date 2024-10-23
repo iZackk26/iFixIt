@@ -1,57 +1,47 @@
-import React from 'react';
-import { View, Text, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, SafeAreaView, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
 
-interface Observation {
-  title: string;
-  description: string;
-}
-
-interface VehicleRevision {
-  worker: string;
+interface OrderDetails {
+  ordernumber: string;
   date: string;
-  brand: string;
-  year: number;
-  licensePlate: string;
-  observations: Observation[];
+  comments: {
+    comment: string;
+  };
+  employeename: string;
+  employeeposition: string;
+  employeeworkshop: string;
+  vehiclebrand: string;
+  vehicleyear: number;
+  vehiclelicenseplate: string;
 }
+
+const BASE_URL = "http://ifixit-18a1923dbbcd.herokuapp.com/api/";
 
 export default function VehicleRevision() {
   const route = useRoute();
   const { orderId } = route.params; // Recibe el parámetro
 
-  const revision: VehicleRevision = {
-    worker: "Juan Pérez",
-    date: "2023-10-21",
-    brand: "Toyota",
-    year: 2020,
-    licensePlate: "ABC-123",
-    observations: [
-      {
-        title: "Oil Change",
-        description: "The oil was changed using high-quality synthetic oil."
-      },
-      {
-        title: "Air Filter",
-        description: "The air filter was replaced with a new one to improve engine efficiency."
-      },
-      {
-        title: "Brake Condition",
-        description: "The brakes are in good condition, with enough material on the pads."
-      },
-      {
-        title: "Recommendation",
-        description: "It is recommended to perform an alignment during the next visit to optimize tire performance."
-      }
-    ]
-  };
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
 
-  const renderObservation = ({ item }: { item: Observation }) => (
-    <View className="border-b border-gray-200 pb-3 mb-3 last:border-b-0">
-      <Text className="text-lg text-black-600 font-semibold">{item.title}</Text>
-      <Text className="text-sm text-gray-600 mt-1">{item.description}</Text>
-    </View>
-  );
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}registration/${orderId}/details`);
+        setOrderDetails(response.data); // Asigna los datos obtenidos al estado
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchOrderDetails();
+  }, [orderId]);
+
+  // Si los datos aún no están cargados, no renderiza nada
+  if (!orderDetails) {
+    return null; // O podrías mostrar un indicador de carga si prefieres
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -63,36 +53,35 @@ export default function VehicleRevision() {
           <View className="space-y-6">
             <View className="flex-row flex-wrap justify-between">
               <View className="w-1/2 mb-4">
-                <Text className="font-semibold text-sm text-gray-500">Worker</Text>
-                <Text className="text-gray-900">{revision.worker}</Text>
+                <Text className="font-semibold text-sm text-gray-500">Order Number</Text>
+                <Text className="text-gray-900">{orderDetails.ordernumber}</Text>
               </View>
               <View className="w-1/2 mb-4">
-                <Text className="font-semibold text-sm text-gray-500">Revision Date</Text>
-                <Text className="text-gray-900">{new Date(revision.date).toLocaleDateString()}</Text>
+                <Text className="font-semibold text-sm text-gray-500">Employee</Text>
+                <Text className="text-gray-900">{orderDetails.employeename}</Text>
               </View>
               <View className="w-1/2 mb-4">
-                <Text className="font-semibold text-sm text-gray-500">Brand</Text>
-                <Text className="text-gray-900">{revision.brand}</Text>
+                <Text className="font-semibold text-sm text-gray-500">Workshop</Text>
+                <Text className="text-gray-900">{orderDetails.employeeworkshop}</Text>
               </View>
               <View className="w-1/2 mb-4">
-                <Text className="font-semibold text-sm text-gray-500">Year</Text>
-                <Text className="text-gray-900">{revision.year.toString()}</Text>
+                <Text className="font-semibold text-sm text-gray-500">Position</Text>
+                <Text className="text-gray-900">{orderDetails.employeeposition}</Text>
+              </View>
+              <View className="w-full mb-4">
+                <Text className="font-semibold text-sm text-gray-500">Vehicle</Text>
+                <Text className="text-gray-900">{`${orderDetails.vehiclebrand} (${orderDetails.vehicleyear})`}</Text>
               </View>
               <View className="w-full mb-4">
                 <Text className="font-semibold text-sm text-gray-500">License Plate</Text>
                 <View className="bg-gray-200 px-3 py-1 rounded-full self-start mt-1">
-                  <Text className="text-lg text-gray-700">{revision.licensePlate}</Text>
+                  <Text className="text-lg text-gray-700">{orderDetails.vehiclelicenseplate}</Text>
                 </View>
               </View>
             </View>
             <View>
-              <Text className="font-bold text-2xl mb-3 text-black-800">Observations</Text>
-              <FlatList
-                data={revision.observations}
-                renderItem={renderObservation}
-                keyExtractor={(item, index) => index.toString()}
-                scrollEnabled={false}
-              />
+              <Text className="font-bold text-2xl mb-3 text-black-800">Comments</Text>
+              <Text className="text-lg text-gray-700">{orderDetails.comments.comment}</Text>
             </View>
           </View>
         </View>
