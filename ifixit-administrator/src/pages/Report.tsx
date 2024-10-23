@@ -8,10 +8,11 @@ import {
   FaCalendarDay,
   FaCreditCard,
   FaSave,
+  FaPlus,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Button } from "@material-tailwind/react";
+import { Button, Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
 
 const Report = () => {
   const { registrationID } = useParams();
@@ -22,6 +23,11 @@ const Report = () => {
   const [registrationStatus, setRegistrationStatus] = useState<
     "pendiente" | "en proceso" | "completado"
   >("pendiente");
+
+  // Estado para gestionar las imágenes
+  const [images, setImages] = useState<string[]>([]); // Array de URLs de imágenes
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
   useEffect(() => {
     console.log("Registration ID:", registrationID);
@@ -38,6 +44,8 @@ const Report = () => {
         console.log("Registration data:", response.data);
         setRegistrationData(response.data);
         setRegistrationStatus(response.data.status); // Simular estado de la base de datos
+        // Inicializar imágenes (vacías por ahora)
+        setImages(response.data.images || []);
       }
     } catch (err) {
       console.error("Error fetching registration data:", err);
@@ -149,6 +157,39 @@ const Report = () => {
     }
   };
   
+  // Función para manejar la subida de archivos
+  const handleFileUpload = async () => {
+    if (!selectedFiles) return;
+
+    const apiUrl = import.meta.env.VITE_API_KEY;
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append('images', file);
+    });
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}registration/${registrationID}/upload-images`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log('Imágenes subidas:', response.data);
+        // Actualizar el estado de imágenes
+        setImages(response.data.images);
+        alert('Imágenes subidas exitosamente');
+        setIsUploadModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error subiendo imágenes:', err);
+      alert('Error subiendo imágenes');
+    }
+  };
 
   // Comprobación para ver si `registrationData` está disponible
   if (!registrationData) {
@@ -255,6 +296,63 @@ const Report = () => {
             Update comment
           </Button>
         </div>
+
+        {/* Sección de imágenes */}
+        <div className="mt-6">
+          <h4 className="text-xl font-semibold mb-4">Imágenes</h4>
+          <div className="flex flex-wrap gap-4">
+            {images.length > 0 ? (
+              images.map((imgUrl, index) => (
+                <div key={index} className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                  {/* Placeholder para la imagen */}
+                  <img src={imgUrl} alt={`Imagen ${index + 1}`} className="object-cover w-full h-full rounded-lg" />
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No hay imágenes disponibles.</p>
+            )}
+            {/* Botón de añadir imagen */}
+            <button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-2xl text-gray-400 hover:bg-gray-200"
+              title="Agregar imagen"
+            >
+              <FaPlus />
+            </button>
+          </div>
+        </div>
+
+        {/* Modal para subir imágenes */}
+        <Dialog open={isUploadModalOpen} handler={() => setIsUploadModalOpen(!isUploadModalOpen)}>
+          <DialogHeader>Subir Imágenes</DialogHeader>
+          <DialogBody divider>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => setSelectedFiles(e.target.files)}
+              className="w-full"
+            />
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="text"
+              color="red"
+              onClick={() => setIsUploadModalOpen(false)}
+              className="mr-4"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="gradient"
+              color="green"
+              onClick={handleFileUpload}
+              disabled={!selectedFiles || selectedFiles.length === 0}
+            >
+              Subir
+            </Button>
+          </DialogFooter>
+        </Dialog>
       </div>
 
       {/* Entrada para el precio y botones de acción */}
