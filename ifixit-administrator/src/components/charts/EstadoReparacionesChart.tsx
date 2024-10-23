@@ -1,13 +1,8 @@
-// src/components/charts/EstadoReparacionesChart.tsx
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Typography,
-} from "@material-tailwind/react";
+import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { FaTasks } from "react-icons/fa"; // Importa el icono deseado de react-icons
+import { FaTasks } from "react-icons/fa";
+import axios from "axios";
 
 interface EstadoReparacionesData {
   series: number[];
@@ -21,13 +16,28 @@ const EstadoReparacionesChart: React.FC = () => {
   });
 
   useEffect(() => {
-    // Datos estáticos para ahora. En el futuro, reemplaza con una llamada a una API.
-    const data: EstadoReparacionesData = {
-      series: [40, 35, 25], // Pendiente, En Proceso, Completado
-      labels: ["Pendiente", "En Proceso", "Completado"],
+    const fetchData = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_KEY;
+        const response = await axios.get(`${apiUrl}registration/by-status`);
+        
+        // Filtrar para eliminar el estado "completado"
+        const filteredData = response.data.filter((item: any) => item.status !== "completado");
+
+        const labels = filteredData.map((item: any) => item.status);
+        const series = filteredData.map((item: any) => Number(item.totalregistrations));
+
+        // Actualizar los datos del gráfico
+        setChartData({
+          labels,
+          series,
+        });
+      } catch (err) {
+        console.error('Error fetching registration status data:', err);
+      }
     };
 
-    setChartData(data);
+    fetchData();
   }, []);
 
   const chartOptions: ApexCharts.ApexOptions = {
@@ -76,8 +86,6 @@ const EstadoReparacionesChart: React.FC = () => {
         text: "Cantidad",
       },
       min: 0,
-      max: 100,
-      tickAmount: 5,
       labels: {
         style: {
           colors: "#616161",
