@@ -49,7 +49,7 @@ export default function Home() {
           </button>
           <button 
             className="flex flex-col items-center justify-center h-24 text-left border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
-            onClick={() => navigate('/reports')}
+            onClick={() => navigate('/stats')}
           >
             <FaChartBar className="h-8 w-8 mb-2" />
             <span>Reports</span>

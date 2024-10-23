@@ -5,6 +5,7 @@ import Registration from './pages/registration';
 import Works from './pages/works';
 import Billing from './pages/billing';
 import Report from './pages/report';
+import Stats from './pages/stats';
 import { Layout } from './components/Layout';
 import { useAuth } from './contexts/AuthContext';
 
@@ -25,6 +26,7 @@ const Routing = () => {
         <Route path="/workstation" element={<Works />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/reports/:registrationID" element={<Report />} />
+        <Route path="/stats" element={<Stats />} />
       </Route>
     </Routes>
   );
