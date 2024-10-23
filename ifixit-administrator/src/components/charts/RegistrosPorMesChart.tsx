@@ -1,4 +1,3 @@
-// src/components/charts/RegistrosPorMesChart.tsx
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -7,12 +6,20 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { FaCalendarAlt } from "react-icons/fa"; // Importa el icono deseado de react-icons
+import { FaCalendarAlt } from "react-icons/fa";
+import axios from "axios";
 
 interface RegistrosPorMesData {
   series: number[];
   categories: string[];
 }
+
+const getMonthName = (monthString: string): string => {
+  const [year, month] = monthString.split("-"); // Dividir el string "YYYY-MM"
+  const date = new Date(Number(year), Number(month) - 1, 1); // Crear la fecha manualmente
+  return date.toLocaleString('en-US', { month: 'long' }); // Obtener el nombre completo del mes
+};
+
 
 const RegistrosPorMesChart: React.FC = () => {
   const [chartData, setChartData] = useState<RegistrosPorMesData>({
@@ -20,17 +27,24 @@ const RegistrosPorMesChart: React.FC = () => {
     categories: [],
   });
 
-  useEffect(() => {
-    // Datos estáticos para ahora. En el futuro, reemplaza con una llamada a una API.
-    const data: RegistrosPorMesData = {
-      series: [120, 150, 170, 140, 180, 200, 190, 220, 210, 230, 250, 240],
-      categories: [
-        "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-        "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
-      ],
-    };
+  const fetchMonthlyRegistrations = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_KEY; // Ajusta la URL de tu API
+      const response = await axios.get(`${apiUrl}registration/by-month`); // Endpoint que te devuelve los datos
 
-    setChartData(data);
+      const data = response.data; // Suponiendo que esta es la estructura de la respuesta
+      const categories = data.map((entry: any) => getMonthName(entry.month)); 
+      const series = data.map((entry: any) => Number(entry.totalregistrations)); // Extrae las cantidades de registros
+
+      // Actualizar los datos del gráfico
+      setChartData({ categories, series });
+    } catch (err) {
+      console.error("Error fetching monthly registrations:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMonthlyRegistrations(); // Llamar a la API al montar el componente
   }, []);
 
   const chartOptions: ApexCharts.ApexOptions = {
@@ -77,8 +91,6 @@ const RegistrosPorMesChart: React.FC = () => {
         text: "Número de Registros",
       },
       min: 0,
-      max: 300,
-      tickAmount: 6,
       labels: {
         style: {
           colors: "#616161",
