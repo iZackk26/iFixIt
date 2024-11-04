@@ -81,7 +81,7 @@ const Report = () => {
       const response = await axios.put(`${apiUrl}registration/${registrationID}/comments`, {
         comment: registrationData.comments.comment,  // Enviar el nuevo comentario
       });
-  
+
       if (response.status === 200) {
         console.log('Comentarios actualizados:', response.data);
         alert('Comentarios actualizados exitosamente');
@@ -99,7 +99,7 @@ const Report = () => {
       const response = await axios.put(`${apiUrl}registration/${registrationID}/price`, {
         price: parseFloat(price),  // Enviar el precio como un número decimal
       });
-  
+
       if (response.status === 200) {
         console.log('Precio actualizado:', response.data);
         alert('Precio actualizado exitosamente');
@@ -115,7 +115,7 @@ const Report = () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
       const response = await axios.put(`${apiUrl}registration/${registrationID}/pay`);
-  
+
       if (response.status === 200) {
         console.log('Registro marcado como pagado:', response.data);
         alert('Registro marcado como pagado exitosamente');
@@ -131,21 +131,21 @@ const Report = () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
       let statusParam = 0;
-    
+
       if (registrationStatus === 'pendiente') {
         statusParam = 2;  // Pasar a "en proceso"
       } else if (registrationStatus === 'en proceso') {
         statusParam = 3;  // Pasar a "completado"
       }
-  
+
       console.log('Estado actual:', registrationStatus);
       console.log('URL:', `${apiUrl}registration/${registrationID}/status`);
       console.log('Estado a enviar:', statusParam);
-    
+
       const response = await axios.put(`${apiUrl}registration/${registrationID}/status`, {
         status: statusParam,
       });
-    
+
       if (response.status === 200) {
         console.log('Estado actualizado:', response.data);
         setRegistrationStatus(statusParam === 2 ? 'en proceso' : 'completado');
@@ -156,40 +156,27 @@ const Report = () => {
       alert('Error actualizando el estado');
     }
   };
-  
+
   // Función para manejar la subida de archivos
-  const handleFileUpload = async () => {
+  // Función para manejar la subida de archivos (almacenamiento local)
+  const handleFileUpload = () => {
     if (!selectedFiles) return;
 
-    const apiUrl = import.meta.env.VITE_API_KEY;
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append('images', file);
-    });
+    // Crear URLs locales para cada archivo seleccionado
+    const uploadedImages = Array.from(selectedFiles).map((file) =>
+      URL.createObjectURL(file)
+    );
 
-    try {
-      const response = await axios.post(
-        `${apiUrl}registration/${registrationID}/upload-images`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+    // Actualizar el estado de imágenes con las nuevas URLs locales
+    setImages((prevImages) => [...prevImages, ...uploadedImages]);
 
-      if (response.status === 200) {
-        console.log('Imágenes subidas:', response.data);
-        // Actualizar el estado de imágenes
-        setImages(response.data.images);
-        alert('Imágenes subidas exitosamente');
-        setIsUploadModalOpen(false);
-      }
-    } catch (err) {
-      console.error('Error subiendo imágenes:', err);
-      alert('Error subiendo imágenes');
-    }
+    alert("Imágenes subidas exitosamente");
+
+    // Cerrar el modal y limpiar la selección de archivos
+    setIsUploadModalOpen(false);
+    setSelectedFiles(null);
   };
+
 
   // Comprobación para ver si `registrationData` está disponible
   if (!registrationData) {
@@ -376,17 +363,16 @@ const Report = () => {
           <div className="flex flex-1  space-x-4 justify-end">
             <Button
               onClick={handleMarkAsPaid}
-              
+
             >
               Marcar como Pagado
             </Button>
             <Button
               onClick={handleMarkAsCompleted}
-              className={` transition duration-300 ${
-                registrationStatus === "completado"
+              className={` transition duration-300 ${registrationStatus === "completado"
                   ? "opacity-50 cursor-not-allowed"
                   : ""
-              }`}
+                }`}
               disabled={registrationStatus === "completado"}
             >
               {getCompletionButtonText()}
