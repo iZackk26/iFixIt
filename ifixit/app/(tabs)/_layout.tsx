@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { TabBarIcon } from "@/components/TabBarIcon";
-import { TabBarAccount } from "@/components/TabBarAccount";
+import { TabBarMap } from "@/components/TabBarMap";
 
 const lightBlue = '#ADD8E6'; // Define el color celeste suave
 
@@ -27,8 +27,8 @@ export default function TabsLayout() {
                 options={{
                     title: 'Map',
                     tabBarIcon: ({ focused }) => (
-                        <TabBarAccount
-                            name={focused ? 'map' : 'person-outline'}
+                        <TabBarMap
+                            name={focused ? 'map-marker' : 'map-marker-outline'}
                             color={focused ? lightBlue : undefined}
                         />
                     ),
