@@ -53,13 +53,15 @@ CREATE TABLE Registration (
 );
 
 
-ALTER TABLE Registration
-ADD COLUMN comments JSONB;
+CREATE TABLE RegistrationComments (
+    id SERIAL PRIMARY KEY,
+    registrationID INT NOT NULL,  -- Relación con la tabla Registration
+    comment TEXT NOT NULL,         -- El comentario en sí
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha de creación del comentario
 
-SELECT * FROM information_schema.tables WHERE table_name = 'registration';
+    -- Llave foránea para relacionar con Registration
+    CONSTRAINT fk_registration_comments FOREIGN KEY(registrationID) REFERENCES Registration(id) ON DELETE CASCADE
+);
 
-
-SELECT *
-FROM Registration
-WHERE price > 0;
-
+INSERT INTO RegistrationComments (registrationID, comment, created_at)
+VALUES (199, 'El vehículo ha sido revisado y está listo para la reparación.', CURRENT_TIMESTAMP);
