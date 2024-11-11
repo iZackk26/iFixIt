@@ -34,6 +34,20 @@ export default function TabsLayout() {
                     ),
                 }}
             />
+            <Tabs.Screen
+                name="mechanicWorkshops"
+                options={{
+                    title: 'Talleres',
+                    tabBarIcon: ({ focused }) => (
+                        <TabBarIcon
+                            name={focused ? 'settings' : 'settings-outline'}
+                            color={focused ? lightBlue : undefined}
+                        />
+                    ),
+                }}
+
+            />
         </Tabs>
+
     );
 }

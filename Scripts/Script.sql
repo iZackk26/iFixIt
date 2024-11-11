@@ -52,6 +52,11 @@ CREATE TABLE Registration (
     CONSTRAINT fk_vehicle_registration FOREIGN KEY(vehicleID) REFERENCES Vehicle(id) ON DELETE SET NULL
 );
 
+ALTER TABLE Registration
+ADD COLUMN appointmentAvailable BOOLEAN NOT NULL DEFAULT FALSE, -- Indica si es posible agendar una cita
+ADD COLUMN appointmentDate DATE DEFAULT NULL; -- Fecha de la cita, inicialmente vacía
+
+
 
 CREATE TABLE RegistrationComments (
     id SERIAL PRIMARY KEY,
@@ -63,5 +68,22 @@ CREATE TABLE RegistrationComments (
     CONSTRAINT fk_registration_comments FOREIGN KEY(registrationID) REFERENCES Registration(id) ON DELETE CASCADE
 );
 
-INSERT INTO RegistrationComments (registrationID, comment, created_at)
-VALUES (199, 'El vehículo ha sido revisado y está listo para la reparación.', CURRENT_TIMESTAMP);
+
+CREATE OR REPLACE FUNCTION set_appointment_available()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Verificar si `price` está siendo actualizado y no es NULL
+  IF NEW.price IS NOT NULL AND OLD.price IS DISTINCT FROM NEW.price THEN
+    NEW.appointmentAvailable := TRUE;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Actualizar el trigger a BEFORE UPDATE
+CREATE TRIGGER trigger_set_appointment_available
+BEFORE UPDATE OF price ON Registration
+FOR EACH ROW
+WHEN (NEW.price IS NOT NULL)
+EXECUTE FUNCTION set_appointment_available();
+

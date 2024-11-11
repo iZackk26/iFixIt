@@ -1,34 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, Button, Platform, TouchableOpacity, ToastAndroid } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
+
+interface Comment {
+  comment: string;
+  created_at: string;
+}
 
 interface OrderDetails {
   ordernumber: string;
   date: string;
-  comments: {
-    comment: string;
-  };
+  comments: Comment[];
   employeename: string;
   employeeposition: string;
   employeeworkshop: string;
   vehiclebrand: string;
   vehicleyear: number;
   vehiclelicenseplate: string;
+  appointmentAvailable: boolean;
 }
 
 const BASE_URL = "http://ifixit-18a1923dbbcd.herokuapp.com/api/";
 
 export default function VehicleRevision() {
   const route = useRoute();
-  const { orderId } = route.params; // Recibe el parámetro
+  const { orderId } = route.params as { orderId: string }; // Recibe el parámetro
 
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
         const response = await axios.get(`${BASE_URL}registration/${orderId}/details`);
+        console.log('Data fetched:', response.data);
         setOrderDetails(response.data); // Asigna los datos obtenidos al estado
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -38,7 +46,33 @@ export default function VehicleRevision() {
     fetchOrderDetails();
   }, [orderId]);
 
-  // Si los datos aún no están cargados, no renderiza nada
+  const handleDateChange = (event: any, date?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios'); // Mostrar picker solo en iOS si es necesario
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
+  const saveAppointmentDate = async () => {
+    if (selectedDate) {
+      try {
+        await axios.put(`${BASE_URL}registration/${orderDetails?.ordernumber}/appointment`, {
+          appointmentDate: selectedDate.toISOString().split('T')[0],
+        });
+
+        // Mostrar toast de éxito solo en Android
+        if (Platform.OS === 'android') {
+          ToastAndroid.show('Fecha de cita guardada exitosamente', ToastAndroid.SHORT);
+        } else {
+          alert('Fecha de cita guardada exitosamente'); // Fallback para iOS
+        }
+      } catch (error) {
+        console.error('Error al guardar la fecha de cita:', error);
+        alert('Error al guardar la fecha de cita');
+      }
+    }
+  };
+
   if (!orderDetails) {
     return null; // O podrías mostrar un indicador de carga si prefieres
   }
@@ -79,10 +113,52 @@ export default function VehicleRevision() {
                 </View>
               </View>
             </View>
+
+            {/* Comentarios */}
             <View>
               <Text className="font-bold text-2xl mb-3 text-black-800">Comments</Text>
-              <Text className="text-lg text-gray-700">{orderDetails.comments.comment}</Text>
+              {orderDetails.comments.map((comment, index) => (
+                <View key={index} className="mb-4 p-3 border-b border-gray-300">
+                  <Text className="text-gray-700 text-base mb-1">{comment.comment}</Text>
+                  <Text className="text-gray-500 text-xs">
+                    {new Date(comment.created_at).toLocaleString()}
+                  </Text>
+                </View>
+              ))}
             </View>
+
+            {/* Selector de fecha */}
+            {orderDetails.appointmentavailable && (
+              <View className="mt-6">
+                <Text className="text-lg font-semibold text-gray-800">Seleccionar Fecha de Cita</Text>
+                <Button title="Elige una fecha" onPress={() => setShowDatePicker(true)} />
+                {/* Contenedor centrado para el DateTimePicker */}
+                {showDatePicker && (
+                  <View className="items-center justify-center">
+                    <DateTimePicker
+                      value={selectedDate || new Date()}
+                      mode="date"
+                      display="default"
+                      onChange={handleDateChange}
+                    />
+                  </View>
+                )}
+
+                {selectedDate && (
+                  <View className="mt-4 items-center">
+                    <Text className="text-gray-700 mb-2">Fecha seleccionada: {selectedDate.toLocaleDateString()}</Text>
+                    <TouchableOpacity
+                      onPress={saveAppointmentDate}
+                      className="bg-blue-500 px-4 py-2 rounded-full"
+                      activeOpacity={0.7}
+                    >
+                      <Text className="text-white font-semibold text-lg">Guardar Fecha de Cita</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>
