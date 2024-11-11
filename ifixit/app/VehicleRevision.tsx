@@ -20,34 +20,35 @@ interface OrderDetails {
   vehicleyear: number;
   vehiclelicenseplate: string;
   appointmentAvailable: boolean;
+  appointmentDate: string | null;
+  price: number | null;
 }
 
 const BASE_URL = "http://ifixit-18a1923dbbcd.herokuapp.com/api/";
 
 export default function VehicleRevision() {
   const route = useRoute();
-  const { orderId } = route.params as { orderId: string }; // Recibe el parámetro
+  const { orderId } = route.params as { orderId: string }; 
 
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
         const response = await axios.get(`${BASE_URL}registration/${orderId}/details`);
-        console.log('Data fetched:', response.data);
-        setOrderDetails(response.data); // Asigna los datos obtenidos al estado
+        setOrderDetails(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchOrderDetails();
   }, [orderId]);
 
   const handleDateChange = (event: any, date?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios'); // Mostrar picker solo en iOS si es necesario
+    setShowDatePicker(Platform.OS === 'ios'); 
     if (date) {
       setSelectedDate(date);
     }
@@ -60,12 +61,13 @@ export default function VehicleRevision() {
           appointmentDate: selectedDate.toISOString().split('T')[0],
         });
 
-        // Mostrar toast de éxito solo en Android
         if (Platform.OS === 'android') {
           ToastAndroid.show('Fecha de cita guardada exitosamente', ToastAndroid.SHORT);
         } else {
-          alert('Fecha de cita guardada exitosamente'); // Fallback para iOS
+          alert('Fecha de cita guardada exitosamente');
         }
+
+        setOrderDetails((prev) => prev ? { ...prev, appointmentDate: selectedDate.toISOString().split('T')[0] } : prev);
       } catch (error) {
         console.error('Error al guardar la fecha de cita:', error);
         alert('Error al guardar la fecha de cita');
@@ -74,7 +76,7 @@ export default function VehicleRevision() {
   };
 
   if (!orderDetails) {
-    return null; // O podrías mostrar un indicador de carga si prefieres
+    return null;
   }
 
   return (
@@ -113,8 +115,7 @@ export default function VehicleRevision() {
                 </View>
               </View>
             </View>
-
-            {/* Comentarios */}
+  
             <View>
               <Text className="font-bold text-2xl mb-3 text-black-800">Comments</Text>
               {orderDetails.comments.map((comment, index) => (
@@ -126,42 +127,49 @@ export default function VehicleRevision() {
                 </View>
               ))}
             </View>
-
-            {/* Selector de fecha */}
-            {orderDetails.appointmentavailable && (
-              <View className="mt-6">
-                <Text className="text-lg font-semibold text-gray-800">Seleccionar Fecha de Cita</Text>
-                <Button title="Elige una fecha" onPress={() => setShowDatePicker(true)} />
-                {/* Contenedor centrado para el DateTimePicker */}
-                {showDatePicker && (
-                  <View className="items-center justify-center">
-                    <DateTimePicker
-                      value={selectedDate || new Date()}
-                      mode="date"
-                      display="default"
-                      onChange={handleDateChange}
-                    />
-                  </View>
-                )}
-
-                {selectedDate && (
-                  <View className="mt-4 items-center">
-                    <Text className="text-gray-700 mb-2">Fecha seleccionada: {selectedDate.toLocaleDateString()}</Text>
-                    <TouchableOpacity
-                      onPress={saveAppointmentDate}
-                      className="bg-blue-500 px-4 py-2 rounded-full"
-                      activeOpacity={0.7}
-                    >
-                      <Text className="text-white font-semibold text-lg">Guardar Fecha de Cita</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-
+  
+            {orderDetails.price && (
+              <View className="mt-8 items-center">
+                <Text className="text-green-600 text-xl font-bold">${orderDetails.price}</Text>
               </View>
             )}
+  
+            {/* Selector de fecha siempre disponible */}
+            <View className="mt-8">
+              <Text className="text-lg font-semibold text-gray-800 text-center">Fecha de Cita</Text>
+  
+              <TouchableOpacity onPress={() => setShowDatePicker(true)} className="bg-blue-500 px-4 py-2 rounded-full mt-4">
+                <Text className="text-white font-semibold text-center">Elige una fecha</Text>
+              </TouchableOpacity>
+  
+              {showDatePicker && (
+                <View className="mt-2 items-center justify-center">
+                  <DateTimePicker
+                    value={selectedDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                </View>
+              )}
+  
+              {selectedDate && (
+                <View className="mt-4 items-center">
+                  <Text className="text-gray-700 mb-2">Fecha seleccionada: {selectedDate.toLocaleDateString()}</Text>
+                  <TouchableOpacity
+                    onPress={saveAppointmentDate}
+                    className="bg-blue-500 px-4 py-2 rounded-full"
+                    activeOpacity={0.7}
+                  >
+                    <Text className="text-white font-semibold text-lg">Guardar Fecha de Cita</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
+  
 }

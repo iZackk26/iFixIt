@@ -1,5 +1,5 @@
-// src/components/charts/TopEmpleadosChart.tsx
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Card,
   CardBody,
@@ -7,27 +7,38 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { FaUsers } from "react-icons/fa"; // Icono para representar empleados
+import { FaUsers } from "react-icons/fa";
 
-interface TopEmpleadosData {
-  series: number[];
-  labels: string[];
+interface EmployeeData {
+  name: string;
+  totalrepairs: number;
 }
 
+
 const TopEmpleadosChart: React.FC = () => {
-  const [chartData, setChartData] = useState<TopEmpleadosData>({
+  const [chartData, setChartData] = useState<{ series: number[]; labels: string[] }>({
     series: [],
     labels: [],
   });
 
   useEffect(() => {
-    // Datos estáticos de ejemplo. Reemplaza con una llamada a una API si es necesario.
-    const data: TopEmpleadosData = {
-      series: [50, 40, 30, 20], // Número de reparaciones
-      labels: ["Empleado A", "Empleado B", "Empleado C", "Empleado D"], // Nombres de los empleados
+    const fetchData = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_KEY; // Ajusta la URL de tu API
+        const response = await axios.get(`${apiUrl}registration/by-employee`);
+        console.log("API Response:", response.data); // Verifica que la API devuelva los datos esperados
+
+        // Procesa los datos para extraer los nombres y el total de reparaciones
+        const labels = response.data.map((employee: EmployeeData) => employee.name);
+        const series = response.data.map((employee: EmployeeData) => employee.totalrepairs);
+
+        setChartData({ labels, series });
+      } catch (error) {
+        console.error("Error al obtener los datos de la API:", error);
+      }
     };
 
-    setChartData(data);
+    fetchData();
   }, []);
 
   const chartOptions: ApexCharts.ApexOptions = {
@@ -38,9 +49,6 @@ const TopEmpleadosChart: React.FC = () => {
       type: "bar",
       height: 240,
     },
-    title: {
-      show: false,
-    },
     dataLabels: {
       enabled: true,
       formatter: (val: number) => `${val}`,
@@ -48,7 +56,7 @@ const TopEmpleadosChart: React.FC = () => {
         colors: ["#fff"],
       },
     },
-    colors: ["#3B82F6"], // Color azul para las barras
+    colors: ["#3B82F6"],
     plotOptions: {
       bar: {
         horizontal: false,
@@ -61,48 +69,12 @@ const TopEmpleadosChart: React.FC = () => {
       title: {
         text: "Empleados",
       },
-      axisTicks: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-      labels: {
-        style: {
-          colors: "#616161",
-          fontSize: "12px",
-          fontFamily: "inherit",
-          fontWeight: 400,
-        },
-      },
     },
     yaxis: {
       title: {
         text: "Número de Reparaciones",
       },
       min: 0,
-      max: 60,
-      tickAmount: 6,
-      labels: {
-        style: {
-          colors: "#616161",
-          fontSize: "12px",
-          fontFamily: "inherit",
-          fontWeight: 400,
-        },
-      },
-    },
-    grid: {
-      show: true,
-      borderColor: "#dddddd",
-      strokeDashArray: 5,
-      padding: {
-        top: 5,
-        right: 20,
-      },
-    },
-    fill: {
-      opacity: 1,
     },
     tooltip: {
       theme: "dark",
@@ -116,11 +88,6 @@ const TopEmpleadosChart: React.FC = () => {
         options: {
           chart: {
             height: 200,
-          },
-          xaxis: {
-            labels: {
-              show: false,
-            },
           },
         },
       },
@@ -154,7 +121,7 @@ const TopEmpleadosChart: React.FC = () => {
             color="gray"
             className="max-w-sm font-normal"
           >
-            Los 4 empleados con más reparaciones realizadas
+            Los empleados con más reparaciones realizadas
           </Typography>
         </div>
       </CardHeader>

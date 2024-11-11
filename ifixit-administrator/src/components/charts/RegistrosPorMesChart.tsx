@@ -34,7 +34,7 @@ const RegistrosPorMesChart: React.FC = () => {
 
       const data = response.data;
       const categories = data.map((entry: any) => getMonthName(entry.month));
-      const series = data.map((entry: any) => Number(entry.totalregistrations));
+      const series = data.map((entry: any) => Number(entry.totalrepairs)); // Ajuste aquí para usar totalrepairs
 
       console.log("Categories:", categories); // Asegúrate de que se están obteniendo las categorías
       console.log("Series:", series); // Asegúrate de que se están obteniendo los valores de serie

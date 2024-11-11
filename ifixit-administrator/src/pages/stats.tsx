@@ -3,6 +3,7 @@ import React from "react";
 import { Typography } from "@material-tailwind/react";
 import RegistrosPorMesChart from "../components/charts/RegistrosPorMesChart";
 import EstadoReparacionesChart from "../components/charts/EstadoReparacionesChart";
+import TopEmpleadosChart from "../components/charts/TopEmpleadosChart";
 
 const Stats: React.FC = () => {
   return (
@@ -15,7 +16,9 @@ const Stats: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <RegistrosPorMesChart />
         <EstadoReparacionesChart />
+        <TopEmpleadosChart />
       </div>
+  
     </div>
   );
 };
