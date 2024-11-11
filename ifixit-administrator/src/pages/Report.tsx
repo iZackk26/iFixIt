@@ -47,15 +47,19 @@ const Report = () => {
 
       if (response) {
         console.log("Registration data:", response.data);
-        setRegistrationData(response.data);
+        setRegistrationData({
+          ...response.data,
+          comments: response.data.comments || [], // Asegurarse de que comments siempre sea un array
+        });
         setRegistrationStatus(response.data.status); // Simular estado de la base de datos
-        // Inicializar imágenes (vacías por ahora)
         setImages(response.data.images || []);
       }
     } catch (err) {
-      console.error("Error fetching registration data:", err);
+      console.error("Error fetching registration data:", err
+      );
     }
-  };
+  }
+
 
   useEffect(() => {
     fetchRegistrationData();
@@ -85,22 +89,40 @@ const Report = () => {
   >("pendiente");
 
   // Función para manejar la actualización del comentario
-  const handleUpdateComment = async () => {
+  const handleAddNewComment = async () => {
+    if (!registrationData.newComment) return; // Validar que haya un comentario escrito
+
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
-      const response = await axios.put(`${apiUrl}registration/${registrationID}/comments`, {
-        comment: registrationData.comments.comment,  // Enviar el nuevo comentario
-      });
+      const response = await axios.put(
+        `${apiUrl}registration/${registrationID}/comments`,
+        { comment: registrationData.newComment } // Enviar el comentario
+      );
 
-      if (response.status === 200) {
-        console.log("Comentarios actualizados:", response.data);
-        alert("Comentarios actualizados exitosamente");
+      if (response.status === 201) {
+        console.log("Comentario añadido:", response.data);
+        alert("Comentario añadido exitosamente");
+
+        // Agregar el nuevo comentario al estado de `registrationData`
+        setRegistrationData((prevData) => ({
+          ...prevData,
+          comments: [
+            ...prevData.comments,
+            {
+              id: response.data.data.id,
+              comment: registrationData.newComment,
+              created_at: new Date().toISOString(),
+            },
+          ],
+          newComment: "", // Limpiar el área de texto después de añadir el comentario
+        }));
       }
     } catch (err) {
-      console.error("Error actualizando los comentarios:", err);
-      alert("Error actualizando los comentarios");
+      console.error("Error añadiendo el comentario:", err);
+      alert("Error añadiendo el comentario");
     }
   };
+
 
   // Función para manejar la confirmación del precio
   const handleConfirmPrice = async () => {
@@ -257,172 +279,185 @@ const Report = () => {
         </div>
       </div>
 
-      {/* Comentarios */}
-      <div className="bg-white shadow-md rounded-lg p-4 h-96 flex flex-col">
+      <div className="bg-white shadow-md rounded-lg p-4 h-[500px] flex flex-col overflow-y-auto">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-semibold">Comentarios</h3>
           <div className="mr-2">
-            <p className="text-md font-semibold">
-              {registrationData.employeename}
-            </p>
-            <p className="text-sm text-gray-500">
-              {registrationData.employeeposition}
-            </p>
+            <p className="text-md font-semibold">{registrationData.employeename}</p>
+            <p className="text-sm text-gray-500">{registrationData.employeeposition}</p>
           </div>
         </div>
+
+        {/* Renderizar cada comentario */}
+        {registrationData.comments && registrationData.comments.length > 0 ? (
+          registrationData.comments.map((comment, index) => (
+            <div
+              key={index}
+              className="mb-4 p-3 rounded-lg shadow-sm border border-gray-200 bg-gray-50"
+            >
+              <p className="text-gray-800 text-sm mb-2 font-medium">
+                {comment.comment}
+              </p>
+              <p className="text-gray-500 text-xs">
+                {new Date(comment.created_at).toLocaleString()}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No hay comentarios disponibles.</p>
+        )}
+
+        {/* Área para añadir nuevos comentarios */}
         <textarea
-          value={registrationData.comments.comment}
+          value={registrationData.newComment || ""}
           onChange={(e) =>
             setRegistrationData({
               ...registrationData,
-              comments: {
-                ...registrationData.comments,
-                comment: e.target.value,
-              },
+              newComment: e.target.value,
             })
           }
-          className="w-full p-2 border border-gray-300 rounded-lg flex-grow"
+          placeholder="Añadir un comentario..."
+          className="w-full p-4 border border-gray-300 rounded-lg mt-4 text-base h-32 placeholder-gray-500 resize-none"
         />
 
-        {/* Sección de imágenes */}
-        <div className="flex flex-wrap gap-4 justify-between mt-2">
-          <div className="flex flex-wrap items-start">
-            {/* Mostrar imágenes subidas */}
-            {images.length > 0 ? (
-              images.map((imgUrl, index) => (
-                <div
-                  key={`uploaded-${index}`}
-                  className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mr-2"
-                >
-                  <img
-                    src={imgUrl}
-                    alt={`Imagen ${index + 1}`}
-                    className="object-cover w-full h-full rounded-lg"
-                  />
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500"></p>
-            )}
-
-            {/* Mostrar previews de imágenes seleccionadas */}
-            {imagePreviews.length > 0 &&
-              imagePreviews.map((previewUrl, index) => (
-                <div
-                  key={`preview-${index}`}
-                  className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center"
-                >
-                  <img
-                    src={previewUrl}
-                    alt={`Preview ${index + 1}`}
-                    className="object-cover w-full h-full rounded-lg"
-                  />
-                </div>
-              ))}
-
-            {/* Botón de añadir imagen */}
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-2xl text-gray-400 hover:bg-gray-200"
-            >
-              <FaPlus />
-            </button>
-          </div>
-          <div >
-            <Button
-              onClick={handleUpdateComment}
-              className="flex items-center gap-3"
-              variant="outlined"
-            >
-              <FaSave className="h-5 w-5 text-gray-900" />
-              Update comment
-            </Button>
-          </div>
-        </div>
-
-        {/* Modal para subir imágenes */}
-        <Dialog
-          open={isUploadModalOpen}
-          animate={{
-            mount: { scale: 1, y: 0 },
-            unmount: { scale: 0.9, y: -100 },
-          }}
-          handler={() => setIsUploadModalOpen(!isUploadModalOpen)}
-          size="lg"
-          className="rounded-lg shadow-lg flex flex-col h-1/2" // Ajustamos el modal con flex y altura
-        >
-          <DialogHeader className="flex items-center justify-between">
-            <span className="text-lg font-semibold">
-              Agregar imágenes del vehículo
-            </span>
-            <Button
-              variant="text"
-              color="gray"
-              onClick={() => setIsUploadModalOpen(false)}
-              className="p-2"
-            >
-              <FaTimes className="h-5 w-5 text-gray-600" />
-            </Button>
-          </DialogHeader>
-
-          {/* Ajustamos el DialogBody para que ocupe todo el espacio disponible */}
-          <DialogBody divider className="flex-grow overflow-y-auto">
-            <div className="flex flex-col items-center h-full">
-              <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 ease-in-out cursor-pointer flex-grow relative">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => setSelectedFiles(e.target.files)}
-                  className="w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer"
-                />
-                <div className="flex flex-col items-center justify-center h-full">
-                  <FaCloudUploadAlt className="h-12 w-12 text-gray-500 mb-2" />
-                  <p className="text-gray-500">
-                    Arrastra tus archivos aquí o haz clic para seleccionar
-                    imágenes
-                  </p>
-                </div>
-              </div>
-
-              {imagePreviews.length > 0 && (
-                <div className="mt-4 w-full">
-                  <p className="text-sm text-gray-600">
-                    Archivos seleccionados:
-                  </p>
-                  <ul className="list-disc list-inside text-gray-800">
-                    {imagePreviews.map((fileName, index) => (
-                      <li key={index} className="text-sm">
-                        {fileName.split("/").pop()}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </DialogBody>
-
-          {/* DialogFooter en la parte inferior */}
-          <DialogFooter className="flex-shrink-0">
-            <Button
-              variant="text"
-              onClick={() => setIsUploadModalOpen(false)}
-              className="mr-4"
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="gradient"
-              onClick={handleFileUpload}
-              disabled={!selectedFiles || selectedFiles.length === 0}
-            >
-              Subir
-            </Button>
-          </DialogFooter>
-        </Dialog>
       </div>
 
-      {/* Entrada para el precio y botones de acción */}
+      {/* Sección de imágenes */}
+      <div className="flex flex-wrap gap-4 justify-between mt-2">
+        <div className="flex flex-wrap items-start">
+          {/* Mostrar imágenes subidas */}
+          {images.length > 0 ? (
+            images.map((imgUrl, index) => (
+              <div
+                key={`uploaded-${index}`}
+                className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mr-2"
+              >
+                <img
+                  src={imgUrl}
+                  alt={`Imagen ${index + 1}`}
+                  className="object-cover w-full h-full rounded-lg"
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500"></p>
+          )}
+
+          {/* Mostrar previews de imágenes seleccionadas */}
+          {imagePreviews.length > 0 &&
+            imagePreviews.map((previewUrl, index) => (
+              <div
+                key={`preview-${index}`}
+                className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center"
+              >
+                <img
+                  src={previewUrl}
+                  alt={`Preview ${index + 1}`}
+                  className="object-cover w-full h-full rounded-lg"
+                />
+              </div>
+            ))}
+
+          {/* Botón de añadir imagen */}
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-2xl text-gray-400 hover:bg-gray-200"
+          >
+            <FaPlus />
+          </button>
+        </div>
+        <div >
+          <Button
+            onClick={handleAddNewComment}
+            className="flex items-center gap-3"
+            variant="outlined"
+          >
+            <FaSave className="h-5 w-5 text-gray-900" />
+            Add Comment
+          </Button>
+        </div>
+      </div>
+
+      {/* Modal para subir imágenes */}
+      <Dialog
+        open={isUploadModalOpen}
+        animate={{
+          mount: { scale: 1, y: 0 },
+          unmount: { scale: 0.9, y: -100 },
+        }}
+        handler={() => setIsUploadModalOpen(!isUploadModalOpen)}
+        size="lg"
+        className="rounded-lg shadow-lg flex flex-col h-1/2" // Ajustamos el modal con flex y altura
+      >
+        <DialogHeader className="flex items-center justify-between">
+          <span className="text-lg font-semibold">
+            Agregar imágenes del vehículo
+          </span>
+          <Button
+            variant="text"
+            color="gray"
+            onClick={() => setIsUploadModalOpen(false)}
+            className="p-2"
+          >
+            <FaTimes className="h-5 w-5 text-gray-600" />
+          </Button>
+        </DialogHeader>
+
+        {/* Ajustamos el DialogBody para que ocupe todo el espacio disponible */}
+        <DialogBody divider className="flex-grow overflow-y-auto">
+          <div className="flex flex-col items-center h-full">
+            <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 ease-in-out cursor-pointer flex-grow relative">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => setSelectedFiles(e.target.files)}
+                className="w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer"
+              />
+              <div className="flex flex-col items-center justify-center h-full">
+                <FaCloudUploadAlt className="h-12 w-12 text-gray-500 mb-2" />
+                <p className="text-gray-500">
+                  Arrastra tus archivos aquí o haz clic para seleccionar
+                  imágenes
+                </p>
+              </div>
+            </div>
+
+            {imagePreviews.length > 0 && (
+              <div className="mt-4 w-full">
+                <p className="text-sm text-gray-600">
+                  Archivos seleccionados:
+                </p>
+                <ul className="list-disc list-inside text-gray-800">
+                  {imagePreviews.map((fileName, index) => (
+                    <li key={index} className="text-sm">
+                      {fileName.split("/").pop()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </DialogBody>
+
+        {/* DialogFooter en la parte inferior */}
+        <DialogFooter className="flex-shrink-0">
+          <Button
+            variant="text"
+            onClick={() => setIsUploadModalOpen(false)}
+            className="mr-4"
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="gradient"
+            onClick={handleFileUpload}
+            disabled={!selectedFiles || selectedFiles.length === 0}
+          >
+            Subir
+          </Button>
+        </DialogFooter>
+      </Dialog>
       <div className="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
         <div className="flex flex-row w-full items-end">
           <div className="flex flex-col">
@@ -440,7 +475,6 @@ const Report = () => {
               </Button>
             </div>
           </div>
-<<<<<<< HEAD
           <div className="flex flex-1  space-x-4 justify-end">
             <Button
               onClick={handleMarkAsPaid}
@@ -451,16 +485,8 @@ const Report = () => {
             <Button
               onClick={handleMarkAsCompleted}
               className={` transition duration-300 ${registrationStatus === "completado"
-=======
-          <div className="flex flex-1 space-x-4 justify-end">
-            <Button onClick={handleMarkAsPaid}>Marcar como Pagado</Button>
-            <Button
-              onClick={handleMarkAsCompleted}
-              className={`transition duration-300 ${
-                registrationStatus === "completado"
->>>>>>> c3937e91838bad242a9cc7d0c6b4740e5137caac
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
+                ? "opacity-50 cursor-not-allowed"
+                : ""
                 }`}
               disabled={registrationStatus === "completado"}
             >
@@ -469,7 +495,7 @@ const Report = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

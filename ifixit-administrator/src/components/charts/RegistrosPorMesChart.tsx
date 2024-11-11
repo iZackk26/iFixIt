@@ -15,11 +15,10 @@ interface RegistrosPorMesData {
 }
 
 const getMonthName = (monthString: string): string => {
-  const [year, month] = monthString.split("-"); // Dividir el string "YYYY-MM"
-  const date = new Date(Number(year), Number(month) - 1, 1); // Crear la fecha manualmente
-  return date.toLocaleString('en-US', { month: 'long' }); // Obtener el nombre completo del mes
+  const [year, month] = monthString.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleString('en-US', { month: 'long' });
 };
-
 
 const RegistrosPorMesChart: React.FC = () => {
   const [chartData, setChartData] = useState<RegistrosPorMesData>({
@@ -30,11 +29,15 @@ const RegistrosPorMesChart: React.FC = () => {
   const fetchMonthlyRegistrations = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY; // Ajusta la URL de tu API
-      const response = await axios.get(`${apiUrl}registration/by-month`); // Endpoint que te devuelve los datos
+      const response = await axios.get(`${apiUrl}registration/by-month`);
+      console.log("API Response:", response.data); // Verifica que la API devuelva todos los datos
 
-      const data = response.data; // Suponiendo que esta es la estructura de la respuesta
-      const categories = data.map((entry: any) => getMonthName(entry.month)); 
-      const series = data.map((entry: any) => Number(entry.totalregistrations)); // Extrae las cantidades de registros
+      const data = response.data;
+      const categories = data.map((entry: any) => getMonthName(entry.month));
+      const series = data.map((entry: any) => Number(entry.totalregistrations));
+
+      console.log("Categories:", categories); // Asegúrate de que se están obteniendo las categorías
+      console.log("Series:", series); // Asegúrate de que se están obteniendo los valores de serie
 
       // Actualizar los datos del gráfico
       setChartData({ categories, series });
@@ -44,7 +47,7 @@ const RegistrosPorMesChart: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchMonthlyRegistrations(); // Llamar a la API al montar el componente
+    fetchMonthlyRegistrations();
   }, []);
 
   const chartOptions: ApexCharts.ApexOptions = {

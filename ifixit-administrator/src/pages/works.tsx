@@ -88,6 +88,7 @@ function Works() {
                 detail={registration.detail} // Número de orden
                 options={registration.options} // Información del propietario
                 registrationID={registration.registrationID} // ID de la registración
+                orderNumber={registration.orderNumber} // Número de orden
               />
             ))
           ) : (

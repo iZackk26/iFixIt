@@ -12,9 +12,10 @@ interface WorksCardPropsType {
     icon: string;
     detail: string;
     registrationID: string; // Agregar registrationID a las props
+    orderNumber: string; // Agregar orderNumber a las props
 }
 
-function WorksCard({ title, options, icon, detail, registrationID }: WorksCardPropsType) {
+function WorksCard({ title, options, icon, detail, registrationID, orderNumber }: WorksCardPropsType) {
   const navigate = useNavigate(); // Hook para redirigir
 
   // Manejar el clic en el botón "In progress"
@@ -35,6 +36,9 @@ function WorksCard({ title, options, icon, detail, registrationID }: WorksCardPr
             </Typography>
             <Typography className="!text-gray-600 text-xs font-normal">
               {detail}
+            </Typography>
+            <Typography className="!text-gray-600 text-xs font-normal">
+              Order Number: <span className="font-bold">{orderNumber}</span> {/* Mostrar el número de orden */}
             </Typography>
           </div>
         </div>

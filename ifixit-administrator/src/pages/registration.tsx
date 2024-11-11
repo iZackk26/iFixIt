@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import OwnerForm from "../components/OwnerForm";
 import VehicleForm from "../components/VehicleForm";
 import RegistrationSummary from "../components/RegistrationSummary";
-import { getUser } from "../utils/auth";
+import { useAuth } from "../contexts/AuthContext";
 import { getOwner } from "../utils/owner";
 import { getVehicle } from "../utils/vehicle";
 import axios from "axios";
@@ -16,7 +16,8 @@ export function Registration() {
   const [isFirstStep, setIsFirstStep] = useState(true);
   const navigate = useNavigate(); 
 
-  const userData = getUser();
+  const { user } = useAuth(); // Obtén el usuario del contexto
+
   const ownerData = getOwner();
   const vehicleData = getVehicle();
 
@@ -25,18 +26,15 @@ export function Registration() {
     const apiUrl = import.meta.env.VITE_API_KEY;
     const searchUrl = `${apiUrl}registration/`;  
 
-    if (!ownerData || !vehicleData || !userData) {
+    if (!ownerData || !vehicleData || !user) {
       console.error("Missing data to register the vehicle");
       return;
     }
     const registrationData = {
       ownerID: ownerData.id, 
-      employeeID: userData.id, 
+      employeeID: user.id, 
       vehicleID: vehicleData.id,
       date: new Date().toISOString(),
-      comments: {
-        comment: "Vehicle registered",
-      }
     };
     const response = await axios.post(searchUrl, registrationData);
     if (response.data) {
