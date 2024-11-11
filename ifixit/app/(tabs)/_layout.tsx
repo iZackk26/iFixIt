@@ -23,12 +23,12 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="profile"
+                name="mapcomponent"
                 options={{
-                    title: 'Profile',
+                    title: 'Map',
                     tabBarIcon: ({ focused }) => (
                         <TabBarAccount
-                            name={focused ? 'person' : 'person-outline'}
+                            name={focused ? 'map' : 'person-outline'}
                             color={focused ? lightBlue : undefined}
                         />
                     ),
