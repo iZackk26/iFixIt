@@ -1,49 +1,96 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Linking } from 'react-native';
 import { Star } from 'lucide-react-native';
+
+interface Empleado {
+  nombre: string;
+  origen: string;
+}
 
 interface Taller {
   id: number;
   nombre: string;
-  imagen: string;
+  imagen: any; // Usamos `any` para permitir el uso de require para las imágenes
   descripcion: string;
   estrellas: number;
+  empleados: Empleado[];
+  ubicacion: {
+    direccion: string;
+    latitud: number;
+    longitud: number;
+  };
 }
 
 const talleres: Taller[] = [
     {
       id: 1,
-      nombre: "Taller Mecánico El Rayo",
+      nombre: "Taller Fibras y Frenos Paton",
       imagen: require('../../assets/images/mech1.png'),
       descripcion: "Especialistas en reparaciones rápidas y eficientes para todo tipo de vehículos.",
       estrellas: 4,
+      empleados: [
+        { nombre: "Luis", origen: "perky@gmail.com" },
+        { nombre: "Josue", origen: "josue@gmail.com" }
+      ],
+      ubicacion: {
+        direccion: "50m sureste Registro Civil, Provincia de Alajuela, Cd Quesada, 21001",
+        latitud: 10.319151390075868,
+        longitud: -84.42867802294369,
+      },
     },
     {
       id: 2,
-      nombre: "Auto Service Pro",
+      nombre: "Taller TECSTOP",
       imagen: require('../../assets/images/mech2.png'),
       descripcion: "Servicio premium con técnicos certificados y equipamiento de última generación.",
       estrellas: 5,
+      empleados: [
+        { nombre: "Miguel", origen: "miguel@yahoo.com" }
+      ],
+      ubicacion: {
+        direccion: "Provincia de Alajuela, Cd Quesada, Barrio San Antonio, 21001",
+        latitud: 10.335223893019652,
+        longitud: -84.43043177129887,
+      },
     },
     {
       id: 3,
-      nombre: "Taller Hermanos Rodríguez",
+      nombre: "EuroTaller Quincho",
       imagen: require('../../assets/images/mech3.png'),
       descripcion: "Taller familiar con más de 30 años de experiencia en el sector automotriz.",
       estrellas: 3,
+      empleados: [
+        { nombre: "Izack", origen: "izackk26@gmail.com" },
+        { nombre: "Tortillon", origen: "tortillon@zmail.com" }
+      ],
+      ubicacion: {
+        direccion: "Frente a Bar en Descorche, 200 mts Este de la Entrada a la Dos Pinos, Av. 4, Provincia de Alajuela, Cd Quesada",
+        latitud: 10.331704283773073,
+        longitud: -84.419467305357465,
+      },
     },
-  ];
-  
+    {
+      id: 4,
+      nombre: "Auto servicios Hermanos Hernandez",
+      imagen: require('../../assets/images/mech2.png'),
+      descripcion: "Servicios especializados y atención personalizada para vehículos de todo tipo.",
+      estrellas: 4,
+      empleados: [
+        { nombre: "Ana", origen: "ana@hotmail.com" },
+        { nombre: "Carlos", origen: "carlos@gmail.com" }
+      ],
+      ubicacion: {
+        direccion: "kilómetros suroeste del Bar, 1.2, Provincia de Alajuela, Cd Quesada, Barrio Gamonales, 21001",
+        latitud: 10.318130122382113,
+        longitud: -84.419585422279815,
+      },
+    },
+];
 
 export default function TalleresMecanicos() {
-  const [ordenes, setOrdenes] = useState<{ [key: number]: string }>({});
-
-  const handleOrdenChange = (id: number, valor: string) => {
-    setOrdenes(prev => ({ ...prev, [id]: valor }));
-  };
-
-  const handleSubmitOrden = (id: number) => {
-    console.log(`Orden ${ordenes[id]} enviada para el taller ID: ${id}`);
+  const handleNavigate = (lat: number, lng: number) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    Linking.openURL(url).catch((err) => console.error("Error al abrir Google Maps:", err));
   };
 
   return (
@@ -64,7 +111,7 @@ export default function TalleresMecanicos() {
             {/* Contenido del taller */}
             <View className="p-4">
               <Image
-                source={taller.imagen} // Usar `taller.imagen` directamente
+                source={taller.imagen}
                 className="w-full h-48 rounded mb-4"
                 resizeMode="cover"
               />
@@ -80,21 +127,23 @@ export default function TalleresMecanicos() {
                 ))}
               </View>
 
-              {/* Input de número de orden y botón de enviar */}
-              <View className="flex-col sm:flex-row items-stretch gap-2 mt-4">
-                <TextInput
-                  placeholder="Número de orden"
-                  value={ordenes[taller.id] || ''}
-                  onChangeText={(valor) => handleOrdenChange(taller.id, valor)}
-                  className="flex-grow border border-gray-300 p-2 rounded-lg mb-2"
-                />
-                <TouchableOpacity
-                  onPress={() => handleSubmitOrden(taller.id)}
-                  className="bg-blue-500 px-4 py-2 rounded-lg items-center"
-                >
-                  <Text className="text-white font-semibold">Comprobar fecha agendada</Text>
-                </TouchableOpacity>
-              </View>
+              {/* Lista de empleados */}
+              <Text className="text-lg font-semibold mb-2">Empleados:</Text>
+              {taller.empleados.map((empleado, index) => (
+                <Text key={index} className="text-sm text-gray-700 mb-1">
+                  - {empleado.nombre} (de {empleado.origen})
+                </Text>
+              ))}
+
+              {/* Ubicación y botón de navegación */}
+              <Text className="text-lg font-semibold mb-2 mt-4">Ubicación:</Text>
+              <Text className="text-sm text-gray-700 mb-3">{taller.ubicacion.direccion}</Text>
+              <TouchableOpacity
+                onPress={() => handleNavigate(taller.ubicacion.latitud, taller.ubicacion.longitud)}
+                className="bg-blue-500 px-4 py-2 rounded-lg items-center"
+              >
+                <Text className="text-white font-semibold">Navegar a Taller</Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
