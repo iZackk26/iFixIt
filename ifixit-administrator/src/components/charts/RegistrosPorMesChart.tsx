@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
 import { FaCalendarAlt } from "react-icons/fa";
-import axios from "axios"; 
+// import axios from "axios"; 
 
 interface RegistrosPorMesData {
   series: number[];

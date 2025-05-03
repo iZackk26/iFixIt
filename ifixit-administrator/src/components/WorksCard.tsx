@@ -7,12 +7,12 @@ import { FaPencilAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Para manejar la navegación
 
 interface WorksCardPropsType {
-    title: string;
-    options: string[];
-    icon: string;
-    detail: string;
-    registrationID: string; // Agregar registrationID a las props
-    orderNumber: string; // Agregar orderNumber a las props
+  title: string;
+  options: { [key: string]: string };
+  icon: React.ReactNode;
+  detail: string;
+  registrationID: string; // Agregar registrationID a las props
+  orderNumber: string; // Agregar orderNumber a las props
 }
 
 function WorksCard({ title, options, icon, detail, registrationID, orderNumber }: WorksCardPropsType) {

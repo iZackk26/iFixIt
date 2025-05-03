@@ -3,5 +3,12 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    // …your existing options…
+    "skipLibCheck": true,           // skip checking types in node_modules
+    "noUnusedLocals": false,        // don’t error on unused vars/imports
+    "noUnusedParameters": false,    // don’t error on unused fn params
+    "forceConsistentCasingInFileNames": true
+  }
 }

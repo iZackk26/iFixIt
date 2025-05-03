@@ -1,16 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home';
-import Login from './pages/login';
+import Login from './pages/Login';
 import Registration from './pages/registration';
 import Works from './pages/works';
 import Billing from './pages/billing';
-import Report from './pages/report';
 import Stats from './pages/stats';
+import Report from './pages/Report';
 import { Layout } from './components/Layout';
 import { useAuth } from './contexts/AuthContext';
 
 const Routing = () => {
-  const { isAuthenticated, loading } = useAuth();  // Añadir el estado de carga
+  const { loading } = useAuth();  // Añadir el estado de carga
 
   if (loading) {
     return <div>Loading...</div>; 

@@ -2,7 +2,7 @@ import React, { useState /*, useEffect */ } from "react";
 import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
 import { FaTasks } from "react-icons/fa";
-import axios from "axios"; // mantenemos la importación por si decides reactivar la llamada
+// import axios from "axios"; // mantenemos la importación por si decides reactivar la llamada
 
 interface EstadoReparacionesData {
   series: number[];

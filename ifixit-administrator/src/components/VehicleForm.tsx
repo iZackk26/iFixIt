@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from 'react';
 import { Button, Input, Alert } from "@material-tailwind/react";
 import { FaSearch } from "react-icons/fa"; 

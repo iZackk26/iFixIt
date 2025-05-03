@@ -1,5 +1,5 @@
 import React, { useState /*, useEffect */ } from "react";
-import axios from "axios"; // se mantiene la importación por si reactivas la llamada
+// import axios from "axios"; // se mantiene la importación por si reactivas la llamada
 import {
   Card,
   CardBody,
@@ -68,7 +68,8 @@ const TopEmpleadosChart: React.FC = () => {
       bar: {
         horizontal: false,
         columnWidth: "50%",
-        endingShape: "rounded",
+        borderRadius: 6,                // radio de las esquinas
+        borderRadiusApplication: "end", // opcional: sólo al final de la barra
       },
     },
     xaxis: {

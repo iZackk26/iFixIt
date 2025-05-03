@@ -1,54 +1,71 @@
-import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import sessionstorage from 'sessionstorage';
+// src/contexts/AuthContext.tsx
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
+
+export interface AuthData {
+  id: string;
+  name: string;
+  email: string;
+  // …otros campos que necesites…
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: any;
-  login: (userData: any) => void;
+  user: AuthData | null;
+  login: (userData: AuthData) => void;
   logout: () => void;
-  loading: boolean;  // Añadir un estado para saber si está cargando
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);  // Estado de carga
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<AuthData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay un usuario guardado en sessionStorage
-    const storedUser = sessionstorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));  // Restaurar el usuario desde sessionStorage
-      setIsAuthenticated(true);  // Marcar como autenticado
+    const stored = sessionStorage.getItem("user");
+    if (stored) {
+      try {
+        const parsed: AuthData = JSON.parse(stored);
+        setUser(parsed);
+        setIsAuthenticated(true);
+      } catch {
+        sessionStorage.removeItem("user");
+      }
     }
-    setLoading(false);  // Finalizar la carga después de verificar
+    setLoading(false);
   }, []);
 
-  const login = (userData: any) => {
-    setUser(userData);  // Guardar el objeto user en el estado
-    sessionstorage.setItem('user', JSON.stringify(userData));  // Guardar el usuario en sessionStorage
+  const login = (userData: AuthData) => {
+    setUser(userData);
+    sessionStorage.setItem("user", JSON.stringify(userData));
     setIsAuthenticated(true);
   };
 
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    sessionstorage.removeItem('user');  // Eliminar el usuario de sessionStorage
+    sessionStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

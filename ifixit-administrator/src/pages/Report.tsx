@@ -62,7 +62,7 @@ const Report = () => {
   const [images, setImages] = useState<string[]>([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imagePreviews] = useState<string[]>([]);
   const [price, setPrice] = useState<string>("");
 
   // 3) Función y efecto de fetch comentados
@@ -92,7 +92,7 @@ const Report = () => {
   */
 
   // Estado para gestionar el estado del registro
-  const [registrationStatus, setRegistrationStatus] = useState<
+  const [registrationStatus] = useState<
     "pendiente" | "en proceso" | "completado"
   >("pendiente");
 

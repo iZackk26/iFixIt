@@ -1,5 +1,5 @@
 import React, { useState /*, useEffect */ } from 'react';
-import axios from 'axios'; // se mantiene la importación
+// import axios from 'axios'; // se mantiene la importación
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 interface Transaction {
@@ -99,9 +99,9 @@ const Billing: React.FC = () => {
   ];
 
   // 2) Inicializamos con los datos quemados
-  const [transactions, setTransactions] = useState<Transaction[]>(dummyTransactions);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [transactions] = useState<Transaction[]>(dummyTransactions);
+  const [loading] = useState<boolean>(false);
+  const [error] = useState<string | null>(null);
 
   // 3) Función y efecto de fetch comentados para mantenerlos en el código
   /*

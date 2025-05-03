@@ -6,7 +6,7 @@ import {
 } from "@material-tailwind/react";
 import { FaCar } from "react-icons/fa";
 import WorksCard from "../components/WorksCard";
-import axios from "axios";
+// import axios from "axios";
 import { useState } from "react";
 
 function Works() {
