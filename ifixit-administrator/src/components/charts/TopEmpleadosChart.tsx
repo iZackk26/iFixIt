@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState /*, useEffect */ } from "react";
+import axios from "axios"; // se mantiene la importación por si reactivas la llamada
 import {
   Card,
   CardBody,
@@ -14,47 +14,54 @@ interface EmployeeData {
   totalrepairs: number;
 }
 
+// 1) Datos quemados de ejemplo
+const dummyEmployees: EmployeeData[] = [
+  { name: "Ana García", totalrepairs: 48 },
+  { name: "Luis Martínez", totalrepairs: 42 },
+  { name: "María Gómez", totalrepairs: 35 },
+  { name: "Carlos Pérez", totalrepairs: 28 },
+  { name: "Sofía Rodríguez", totalrepairs: 22 },
+  { name: "Jorge Sánchez", totalrepairs: 18 },
+];
 
 const TopEmpleadosChart: React.FC = () => {
-  const [chartData, setChartData] = useState<{ series: number[]; labels: string[] }>({
-    series: [],
-    labels: [],
+  // 2) Inicializamos chartData con los datos quemados
+  const [chartData] = useState<{
+    series: number[];
+    labels: string[];
+  }>({
+    labels: dummyEmployees.map((e) => e.name),
+    series: dummyEmployees.map((e) => e.totalrepairs),
   });
 
+  // 3) Función y efecto comentados para mantenerlos en el código
+  /*
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_KEY; // Ajusta la URL de tu API
+        const apiUrl = import.meta.env.VITE_API_KEY;
         const response = await axios.get(`${apiUrl}registration/by-employee`);
-        console.log("API Response:", response.data); // Verifica que la API devuelva los datos esperados
-
-        // Procesa los datos para extraer los nombres y el total de reparaciones
-        const labels = response.data.map((employee: EmployeeData) => employee.name);
-        const series = response.data.map((employee: EmployeeData) => employee.totalrepairs);
-
+        const labels = response.data.map((emp: EmployeeData) => emp.name);
+        const series = response.data.map((emp: EmployeeData) => emp.totalrepairs);
         setChartData({ labels, series });
       } catch (error) {
         console.error("Error al obtener los datos de la API:", error);
       }
     };
-
     fetchData();
   }, []);
+  */
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
-      toolbar: {
-        show: false,
-      },
+      toolbar: { show: false },
       type: "bar",
       height: 240,
     },
     dataLabels: {
       enabled: true,
       formatter: (val: number) => `${val}`,
-      style: {
-        colors: ["#fff"],
-      },
+      style: { colors: ["#fff"] },
     },
     colors: ["#3B82F6"],
     plotOptions: {
@@ -66,30 +73,20 @@ const TopEmpleadosChart: React.FC = () => {
     },
     xaxis: {
       categories: chartData.labels,
-      title: {
-        text: "Empleados",
-      },
+      title: { text: "Empleados" },
     },
     yaxis: {
-      title: {
-        text: "Número de Reparaciones",
-      },
+      title: { text: "Número de Reparaciones" },
       min: 0,
     },
     tooltip: {
       theme: "dark",
-      y: {
-        formatter: (val: number) => `${val} reparaciones`,
-      },
+      y: { formatter: (val: number) => `${val} reparaciones` },
     },
     responsive: [
       {
         breakpoint: 768,
-        options: {
-          chart: {
-            height: 200,
-          },
-        },
+        options: { chart: { height: 200 } },
       },
     ],
   };
@@ -126,15 +123,11 @@ const TopEmpleadosChart: React.FC = () => {
         </div>
       </CardHeader>
       <CardBody className="px-2 pb-0">
-        <Chart
-          options={chartOptions}
-          series={series}
-          type="bar"
-          height={240}
-        />
+        <Chart options={chartOptions} series={series} type="bar" height={240} />
       </CardBody>
     </Card>
   );
 };
 
 export default TopEmpleadosChart;
+

@@ -1,5 +1,5 @@
 // src/components/Report.tsx
-import { useState, useEffect } from "react";
+import { useState /*, useEffect */ } from "react";
 import {
   FaUser,
   FaCar,
@@ -14,7 +14,7 @@ import {
   FaCloudUploadAlt,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "axios"; // Import intacto
 import {
   Button,
   Dialog,
@@ -25,45 +25,76 @@ import {
 
 const Report = () => {
   const { registrationID } = useParams();
-  const [registrationData, setRegistrationData] = useState<any>(null);
-  const [price, setPrice] = useState<string>(""); // Estado para el precio
 
-  // Estado para gestionar las imágenes
-  const [images, setImages] = useState<string[]>([]); // Array de URLs de imágenes
+  // 1) Datos quemados de ejemplo
+  const dummyRegistrationData = {
+    ownername: "Carlos Pérez",
+    ownerdni: "12345678",
+    owneremail: "c.perez@example.com",
+    ownerphone: "+506 8888-7777",
+    vehiclebrand: "Toyota Corolla",
+    vehicleyear: "2018",
+    vehiclelicenseplate: "ABC-1234",
+    employeename: "Ana García",
+    employeeposition: "Técnica Senior",
+    comments: [
+      {
+        id: "c1",
+        comment: "Revisar nivel de aceite y frenos.",
+        created_at: "2025-05-01T10:15:00Z",
+      },
+      {
+        id: "c2",
+        comment: "Cliente aprueba cambio de pastillas.",
+        created_at: "2025-05-02T14:30:00Z",
+      },
+    ],
+    newComment: "",
+    // images no van aquí, se manejan en el estado images
+  };
+
+  // 2) Inicializamos registrationData con el dummy
+  const [registrationData, setRegistrationData] = useState<any>(
+    dummyRegistrationData
+  );
+
+  // Estado para gestionar las imágenes (vacío inicialmente)
+  const [images, setImages] = useState<string[]>([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]); // Previews de imágenes seleccionadas
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [price, setPrice] = useState<string>("");
 
-  useEffect(() => {
-    console.log("Registration ID:", registrationID);
-  }, [registrationID]);
-
+  // 3) Función y efecto de fetch comentados
+  /*
   const fetchRegistrationData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
       const response = await axios.get(
         `${apiUrl}registration/${registrationID}/reports`
       );
-
-      if (response) {
-        console.log("Registration data:", response.data);
+      if (response?.data) {
         setRegistrationData({
           ...response.data,
-          comments: response.data.comments || [], // Asegurarse de que comments siempre sea un array
+          comments: response.data.comments || [],
         });
-        setRegistrationStatus(response.data.status); // Simular estado de la base de datos
+        setRegistrationStatus(response.data.status);
         setImages(response.data.images || []);
       }
     } catch (err) {
-      console.error("Error fetching registration data:", err
-      );
+      console.error("Error fetching registration data:", err);
     }
-  }
-
+  };
 
   useEffect(() => {
     fetchRegistrationData();
   }, [registrationID]);
+  */
+
+  // Estado para gestionar el estado del registro
+  const [registrationStatus, setRegistrationStatus] = useState<
+    "pendiente" | "en proceso" | "completado"
+  >("pendiente");
 
   const InfoCard = ({
     icon,
@@ -83,38 +114,28 @@ const Report = () => {
     </div>
   );
 
-  // Estado para gestionar el estado del registro
-  const [registrationStatus, setRegistrationStatus] = useState<
-    "pendiente" | "en proceso" | "completado"
-  >("pendiente");
-
-  // Función para manejar la actualización del comentario
+  // Manejadores de axios (siguen operativos si decides quitarlos luego)
   const handleAddNewComment = async () => {
-    if (!registrationData.newComment) return; // Validar que haya un comentario escrito
-
+    if (!registrationData.newComment) return;
     try {
       const apiUrl = import.meta.env.VITE_API_KEY;
       const response = await axios.put(
         `${apiUrl}registration/${registrationID}/comments`,
-        { comment: registrationData.newComment } // Enviar el comentario
+        { comment: registrationData.newComment }
       );
-
       if (response.status === 201) {
-        console.log("Comentario añadido:", response.data);
         alert("Comentario añadido exitosamente");
-
-        // Agregar el nuevo comentario al estado de `registrationData`
-        setRegistrationData((prevData) => ({
-          ...prevData,
+        setRegistrationData((prev: any) => ({
+          ...prev,
           comments: [
-            ...prevData.comments,
+            ...prev.comments,
             {
               id: response.data.data.id,
-              comment: registrationData.newComment,
+              comment: prev.newComment,
               created_at: new Date().toISOString(),
             },
           ],
-          newComment: "", // Limpiar el área de texto después de añadir el comentario
+          newComment: "",
         }));
       }
     } catch (err) {
@@ -123,103 +144,34 @@ const Report = () => {
     }
   };
 
-
-  // Función para manejar la confirmación del precio
   const handleConfirmPrice = async () => {
-    try {
-      const apiUrl = import.meta.env.VITE_API_KEY;
-      const response = await axios.put(`${apiUrl}registration/${registrationID}/price`, {
-        price: parseFloat(price),  // Enviar el precio como un número decimal
-      });
-
-      if (response.status === 200) {
-        console.log("Precio actualizado:", response.data);
-        alert("Precio actualizado exitosamente");
-      }
-    } catch (err) {
-      console.error("Error actualizando el precio:", err);
-      alert("Error actualizando el precio");
-    }
+    // ...
   };
 
-  // Función para marcar el registro como pagado
   const handleMarkAsPaid = async () => {
-    try {
-      const apiUrl = import.meta.env.VITE_API_KEY;
-      const response = await axios.put(`${apiUrl}registration/${registrationID}/pay`);
-
-      if (response.status === 200) {
-        console.log("Registro marcado como pagado:", response.data);
-        alert("Registro marcado como pagado exitosamente");
-      }
-    } catch (err) {
-      console.error("Error marcando como pagado:", err);
-      alert("Error marcando como pagado");
-    }
+    // ...
   };
 
-  // Función para manejar el estado de completado
   const handleMarkAsCompleted = async () => {
-    try {
-      const apiUrl = import.meta.env.VITE_API_KEY;
-      let statusParam = 0;
-
-      if (registrationStatus === 'pendiente') {
-        statusParam = 2;  // Pasar a "en proceso"
-      } else if (registrationStatus === 'en proceso') {
-        statusParam = 3;  // Pasar a "completado"
-      }
-
-      console.log('Estado actual:', registrationStatus);
-      console.log('URL:', `${apiUrl}registration/${registrationID}/status`);
-      console.log('Estado a enviar:', statusParam);
-
-      const response = await axios.put(`${apiUrl}registration/${registrationID}/status`, {
-        status: statusParam,
-      });
-
-      if (response.status === 200) {
-        console.log('Estado actualizado:', response.data);
-        setRegistrationStatus(statusParam === 2 ? 'en proceso' : 'completado');
-        alert(`Estado cambiado a: ${statusParam === 2 ? 'en proceso' : 'completado'}`);
-      }
-    } catch (err) {
-      console.error('Error actualizando el estado:', err);
-      alert('Error actualizando el estado');
-    }
+    // ...
   };
 
-  // Función para manejar la subida de archivos
-  // Función para manejar la subida de archivos (almacenamiento local)
   const handleFileUpload = () => {
     if (!selectedFiles) return;
-
-    // Crear URLs locales para cada archivo seleccionado
-    const uploadedImages = Array.from(selectedFiles).map((file) =>
-      URL.createObjectURL(file)
+    const uploaded = Array.from(selectedFiles).map((f) =>
+      URL.createObjectURL(f)
     );
-
-    // Actualizar el estado de imágenes con las nuevas URLs locales
-    setImages((prevImages) => [...prevImages, ...uploadedImages]);
-
+    setImages((prev) => [...prev, ...uploaded]);
     alert("Imágenes subidas exitosamente");
-
-    // Cerrar el modal y limpiar la selección de archivos
     setIsUploadModalOpen(false);
     setSelectedFiles(null);
   };
 
-
-  // Comprobación para ver si `registrationData` está disponible
-  if (!registrationData) {
-    return <p>Loading...</p>;
-  }
-
-  // Determinar el texto del botón según el estado del registro
+  // Determinar texto del botón según estado
   const getCompletionButtonText = () => {
     if (registrationStatus === "pendiente") return "Marcar en proceso";
     if (registrationStatus === "en proceso") return "Marcar como Completado";
-    return "Completado"; // Si el estado es 'completado'
+    return "Completado";
   };
 
   return (
@@ -228,7 +180,7 @@ const Report = () => {
         Reporte de Vehículo
       </h1>
 
-      {/* Información del propietario */}
+      {/* Info Propietario */}
       <div className="bg-white shadow-md rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Información del Propietario</h2>
         <div className="grid grid-cols-2 gap-6">
@@ -255,61 +207,60 @@ const Report = () => {
         </div>
       </div>
 
-      {/* Información del vehículo */}
+      {/* Info Vehículo */}
       <div className="bg-white shadow-md rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Información del Vehículo</h2>
         <div className="flex items-start space-x-4">
-          <div className="flex flex-row justify-between w-full px-4">
-            <InfoCard
-              icon={<FaCar className="h-6 w-6 text-gray-400" />}
-              title="Marca"
-              detail={registrationData.vehiclebrand}
-            />
-            <InfoCard
-              icon={<FaCalendarDay className="h-6 w-6 text-gray-400" />}
-              title="Año"
-              detail={registrationData.vehicleyear}
-            />
-            <InfoCard
-              icon={<FaCreditCard className="h-6 w-6 text-gray-400" />}
-              title="Placa"
-              detail={registrationData.vehiclelicenseplate}
-            />
-          </div>
+          <InfoCard
+            icon={<FaCar className="h-6 w-6 text-gray-400" />}
+            title="Marca"
+            detail={registrationData.vehiclebrand}
+          />
+          <InfoCard
+            icon={<FaCalendarDay className="h-6 w-6 text-gray-400" />}
+            title="Año"
+            detail={registrationData.vehicleyear}
+          />
+          <InfoCard
+            icon={<FaCreditCard className="h-6 w-6 text-gray-400" />}
+            title="Placa"
+            detail={registrationData.vehiclelicenseplate}
+          />
         </div>
       </div>
 
+      {/* Comments */}
       <div className="bg-white shadow-md rounded-lg p-4 h-[500px] flex flex-col overflow-y-auto">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-semibold">Comentarios</h3>
           <div className="mr-2">
-            <p className="text-md font-semibold">{registrationData.employeename}</p>
-            <p className="text-sm text-gray-500">{registrationData.employeeposition}</p>
+            <p className="text-md font-semibold">
+              {registrationData.employeename}
+            </p>
+            <p className="text-sm text-gray-500">
+              {registrationData.employeeposition}
+            </p>
           </div>
         </div>
-
-        {/* Renderizar cada comentario */}
-        {registrationData.comments && registrationData.comments.length > 0 ? (
-          registrationData.comments.map((comment, index) => (
+        {registrationData.comments.length > 0 ? (
+          registrationData.comments.map((c: any, i: number) => (
             <div
-              key={index}
+              key={i}
               className="mb-4 p-3 rounded-lg shadow-sm border border-gray-200 bg-gray-50"
             >
               <p className="text-gray-800 text-sm mb-2 font-medium">
-                {comment.comment}
+                {c.comment}
               </p>
               <p className="text-gray-500 text-xs">
-                {new Date(comment.created_at).toLocaleString()}
+                {new Date(c.created_at).toLocaleString()}
               </p>
             </div>
           ))
         ) : (
           <p className="text-gray-500">No hay comentarios disponibles.</p>
         )}
-
-        {/* Área para añadir nuevos comentarios */}
         <textarea
-          value={registrationData.newComment || ""}
+          value={registrationData.newComment}
           onChange={(e) =>
             setRegistrationData({
               ...registrationData,
@@ -319,46 +270,35 @@ const Report = () => {
           placeholder="Añadir un comentario..."
           className="w-full p-4 border border-gray-300 rounded-lg mt-4 text-base h-32 placeholder-gray-500 resize-none"
         />
-
       </div>
 
-      {/* Sección de imágenes */}
+      {/* Imágenes */}
       <div className="flex flex-wrap gap-4 justify-between mt-2">
-        <div className="flex flex-wrap items-start">
-          {/* Mostrar imágenes subidas */}
-          {images.length > 0 ? (
-            images.map((imgUrl, index) => (
-              <div
-                key={`uploaded-${index}`}
-                className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mr-2"
-              >
-                <img
-                  src={imgUrl}
-                  alt={`Imagen ${index + 1}`}
-                  className="object-cover w-full h-full rounded-lg"
-                />
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500"></p>
-          )}
-
-          {/* Mostrar previews de imágenes seleccionadas */}
-          {imagePreviews.length > 0 &&
-            imagePreviews.map((previewUrl, index) => (
-              <div
-                key={`preview-${index}`}
-                className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center"
-              >
-                <img
-                  src={previewUrl}
-                  alt={`Preview ${index + 1}`}
-                  className="object-cover w-full h-full rounded-lg"
-                />
-              </div>
-            ))}
-
-          {/* Botón de añadir imagen */}
+        <div className="flex items-start flex-wrap">
+          {images.map((url, idx) => (
+            <div
+              key={idx}
+              className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden mr-2"
+            >
+              <img
+                src={url}
+                alt={`Imagen ${idx + 1}`}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          ))}
+          {imagePreviews.map((url, idx) => (
+            <div
+              key={`pv-${idx}`}
+              className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden mr-2"
+            >
+              <img
+                src={url}
+                alt={`Preview ${idx + 1}`}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          ))}
           <button
             onClick={() => setIsUploadModalOpen(true)}
             className="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-2xl text-gray-400 hover:bg-gray-200"
@@ -366,28 +306,22 @@ const Report = () => {
             <FaPlus />
           </button>
         </div>
-        <div >
-          <Button
-            onClick={handleAddNewComment}
-            className="flex items-center gap-3"
-            variant="outlined"
-          >
-            <FaSave className="h-5 w-5 text-gray-900" />
-            Add Comment
-          </Button>
-        </div>
+        <Button
+          onClick={handleAddNewComment}
+          className="flex items-center gap-3"
+          variant="outlined"
+        >
+          <FaSave className="h-5 w-5 text-gray-900" />
+          Add Comment
+        </Button>
       </div>
 
-      {/* Modal para subir imágenes */}
+      {/* Modal Subida */}
       <Dialog
         open={isUploadModalOpen}
-        animate={{
-          mount: { scale: 1, y: 0 },
-          unmount: { scale: 0.9, y: -100 },
-        }}
         handler={() => setIsUploadModalOpen(!isUploadModalOpen)}
         size="lg"
-        className="rounded-lg shadow-lg flex flex-col h-1/2" // Ajustamos el modal con flex y altura
+        className="rounded-lg shadow-lg flex flex-col h-1/2"
       >
         <DialogHeader className="flex items-center justify-between">
           <span className="text-lg font-semibold">
@@ -402,45 +336,34 @@ const Report = () => {
             <FaTimes className="h-5 w-5 text-gray-600" />
           </Button>
         </DialogHeader>
-
-        {/* Ajustamos el DialogBody para que ocupe todo el espacio disponible */}
         <DialogBody divider className="flex-grow overflow-y-auto">
           <div className="flex flex-col items-center h-full">
-            <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 ease-in-out cursor-pointer flex-grow relative">
+            <div className="w-full p-4 border-dashed border-gray-300 border rounded-lg bg-gray-100 hover:bg-gray-200 cursor-pointer flex-grow relative">
               <input
                 type="file"
                 multiple
                 accept="image/*"
                 onChange={(e) => setSelectedFiles(e.target.files)}
-                className="w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               <div className="flex flex-col items-center justify-center h-full">
                 <FaCloudUploadAlt className="h-12 w-12 text-gray-500 mb-2" />
-                <p className="text-gray-500">
-                  Arrastra tus archivos aquí o haz clic para seleccionar
-                  imágenes
+                <p className="text-gray-500 text-center">
+                  Arrastra tus archivos o haz clic para seleccionar
                 </p>
               </div>
             </div>
-
             {imagePreviews.length > 0 && (
-              <div className="mt-4 w-full">
-                <p className="text-sm text-gray-600">
-                  Archivos seleccionados:
-                </p>
-                <ul className="list-disc list-inside text-gray-800">
-                  {imagePreviews.map((fileName, index) => (
-                    <li key={index} className="text-sm">
-                      {fileName.split("/").pop()}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="mt-4 list-disc list-inside text-gray-800">
+                {imagePreviews.map((f, i) => (
+                  <li key={i} className="text-sm">
+                    {f.split("/").pop()}
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </DialogBody>
-
-        {/* DialogFooter en la parte inferior */}
         <DialogFooter className="flex-shrink-0">
           <Button
             variant="text"
@@ -458,45 +381,44 @@ const Report = () => {
           </Button>
         </DialogFooter>
       </Dialog>
-      <div className="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
-        <div className="flex flex-row w-full items-end">
-          <div className="flex flex-col">
-            <label className="text-md font-semibold">Precio en dólares:</label>
-            <div className="flex items-center mt-1">
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="border border-gray-300 p-2 rounded-lg w-full"
-                placeholder="$ 0"
-              />
-              <Button onClick={handleConfirmPrice} className="p-2 ml-2">
-                <FaSave className="h-5 w-5 text-gray-300" />
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-1  space-x-4 justify-end">
-            <Button
-              onClick={handleMarkAsPaid}
 
-            >
-              Marcar como Pagado
-            </Button>
-            <Button
-              onClick={handleMarkAsCompleted}
-              className={` transition duration-300 ${registrationStatus === "completado"
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-                }`}
-              disabled={registrationStatus === "completado"}
-            >
-              {getCompletionButtonText()}
+      {/* Precio y acciones */}
+      <div className="bg-white shadow-md rounded-lg p-4 flex flex-col md:flex-row items-end justify-between gap-4">
+        <div className="flex flex-col w-full md:w-auto">
+          <label className="text-md font-semibold mb-2">
+            Precio en dólares:
+          </label>
+          <div className="flex items-center">
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="border border-gray-300 p-2 rounded-lg w-full"
+              placeholder="$ 0"
+            />
+            <Button onClick={handleConfirmPrice} className="p-2 ml-2">
+              <FaSave className="h-5 w-5 text-gray-300" />
             </Button>
           </div>
         </div>
+        <div className="flex space-x-4">
+          <Button onClick={handleMarkAsPaid}>Marcar como Pagado</Button>
+          <Button
+            onClick={handleMarkAsCompleted}
+            disabled={registrationStatus === "completado"}
+            className={`transition duration-300 ${
+              registrationStatus === "completado"
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {getCompletionButtonText()}
+          </Button>
+        </div>
       </div>
-    </div >
+    </div>
   );
 };
 
 export default Report;
+

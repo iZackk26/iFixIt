@@ -19,17 +19,21 @@ const Routing = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
 
-      <Route element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
-        <Route path="/registration" element={<Registration />} />
-        <Route path="/workstation" element={<Works />} />
-        <Route path="/billing" element={<Billing />} />
-        <Route path="/reports/:registrationID" element={<Report />} />
-        <Route path="/stats" element={<Stats />} />
+      <Route path="/*" element={<Layout />}>
+        <Route index element={<Home />} />
+        
+        <Route path="registration" element={<Registration />} />
+        <Route path="workstation"  element={<Works />} />
+        <Route path="billing"      element={<Billing />} />
+        <Route path="reports/:registrationID" element={<Report />} />
+        <Route path="stats"        element={<Stats />} />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
-  );
+
+    );
 };
 
 export default Routing;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState /*, useEffect */ } from "react";
 import {
   Card,
   CardBody,
@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
 import { FaCalendarAlt } from "react-icons/fa";
-import axios from "axios";
+import axios from "axios"; 
 
 interface RegistrosPorMesData {
   series: number[];
@@ -17,29 +17,43 @@ interface RegistrosPorMesData {
 const getMonthName = (monthString: string): string => {
   const [year, month] = monthString.split("-");
   const date = new Date(Number(year), Number(month) - 1, 1);
-  return date.toLocaleString('en-US', { month: 'long' });
+  return date.toLocaleString("en-US", { month: "long" });
 };
 
+// Datos quemados para cubrir un año (junio 2024 – mayo 2025)
+const dummyMonthlyRegistrations = [
+  { month: "2024-06", totalrepairs: 15 },
+  { month: "2024-07", totalrepairs: 18 },
+  { month: "2024-08", totalrepairs: 20 },
+  { month: "2024-09", totalrepairs: 22 },
+  { month: "2024-10", totalrepairs: 25 },
+  { month: "2024-11", totalrepairs: 27 },
+  { month: "2024-12", totalrepairs: 30 },
+  { month: "2025-01", totalrepairs: 32 },
+  { month: "2025-02", totalrepairs: 35 },
+  { month: "2025-03", totalrepairs: 38 },
+  { month: "2025-04", totalrepairs: 40 },
+  { month: "2025-05", totalrepairs: 42 },
+];
+
 const RegistrosPorMesChart: React.FC = () => {
-  const [chartData, setChartData] = useState<RegistrosPorMesData>({
-    series: [],
-    categories: [],
+  // Inicializamos el chartData directamente con los datos quemados
+  const [chartData] = useState<RegistrosPorMesData>({
+    series: dummyMonthlyRegistrations.map((entry) => entry.totalrepairs),
+    categories: dummyMonthlyRegistrations.map((entry) =>
+      getMonthName(entry.month)
+    ),
   });
 
+  // Función y efecto comentados para mantenerlos en el código
+  /*
   const fetchMonthlyRegistrations = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_KEY; // Ajusta la URL de tu API
+      const apiUrl = import.meta.env.VITE_API_KEY;
       const response = await axios.get(`${apiUrl}registration/by-month`);
-      console.log("API Response:", response.data); // Verifica que la API devuelva todos los datos
-
       const data = response.data;
-      const categories = data.map((entry: any) => getMonthName(entry.month));
-      const series = data.map((entry: any) => Number(entry.totalrepairs)); // Ajuste aquí para usar totalrepairs
-
-      console.log("Categories:", categories); // Asegúrate de que se están obteniendo las categorías
-      console.log("Series:", series); // Asegúrate de que se están obteniendo los valores de serie
-
-      // Actualizar los datos del gráfico
+      const categories = data.map((e: any) => getMonthName(e.month));
+      const series = data.map((e: any) => Number(e.totalrepairs));
       setChartData({ categories, series });
     } catch (err) {
       console.error("Error fetching monthly registrations:", err);
@@ -49,37 +63,22 @@ const RegistrosPorMesChart: React.FC = () => {
   useEffect(() => {
     fetchMonthlyRegistrations();
   }, []);
+  */
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
-      toolbar: {
-        show: false,
-      },
+      toolbar: { show: false },
       type: "line",
       height: 240,
-      zoom: {
-        enabled: false,
-      },
+      zoom: { enabled: false },
     },
-    colors: ["#6366F1"],
-    stroke: {
-      curve: "smooth",
-      width: 3,
-    },
-    markers: {
-      size: 0,
-    },
+    stroke: { curve: "smooth", width: 3 },
+    markers: { size: 0 },
     xaxis: {
       categories: chartData.categories,
-      title: {
-        text: "Meses",
-      },
-      axisTicks: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
+      title: { text: "Meses" },
+      axisTicks: { show: false },
+      axisBorder: { show: false },
       labels: {
         style: {
           colors: "#616161",
@@ -90,9 +89,7 @@ const RegistrosPorMesChart: React.FC = () => {
       },
     },
     yaxis: {
-      title: {
-        text: "Número de Registros",
-      },
+      title: { text: "Número de Registros" },
       min: 0,
       labels: {
         style: {
@@ -107,17 +104,10 @@ const RegistrosPorMesChart: React.FC = () => {
       show: true,
       borderColor: "#dddddd",
       strokeDashArray: 5,
-      padding: {
-        top: 5,
-        right: 20,
-      },
+      padding: { top: 5, right: 20 },
     },
-    fill: {
-      opacity: 0.8,
-    },
-    tooltip: {
-      theme: "dark",
-    },
+    fill: { opacity: 0.8 },
+    tooltip: { theme: "dark" },
   };
 
   const series = [
@@ -164,3 +154,4 @@ const RegistrosPorMesChart: React.FC = () => {
 };
 
 export default RegistrosPorMesChart;
+
